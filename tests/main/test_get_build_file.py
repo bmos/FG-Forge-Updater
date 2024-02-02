@@ -2,7 +2,7 @@ from pathlib import Path, PurePath
 
 import pytest
 
-from src.main import get_build_file
+from main import get_build_file
 
 
 def test_get_build_file() -> None:

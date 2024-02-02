@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from src.forge_api import ForgeURLs
+from forge_api import ForgeURLs
 
 
 def test_forge_urls() -> None:

@@ -7,7 +7,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from src.dropzone import add_file_to_dropzone
+from dropzone import add_file_to_dropzone
 
 TEST_ELEMENTS = [
     (By.XPATH, "//a[@id='manage-build-uploads-tab']"),

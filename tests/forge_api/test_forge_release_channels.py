@@ -1,4 +1,4 @@
-from src.forge_api import ReleaseChannel
+from forge_api import ReleaseChannel
 
 
 def test_forge_urls() -> None:

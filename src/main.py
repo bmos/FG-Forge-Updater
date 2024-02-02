@@ -11,7 +11,7 @@ from markdown import markdown
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
-from src.forge_api import ForgeItem, ForgeCredentials, ForgeURLs, ReleaseChannel
+from forge_api import ForgeItem, ForgeCredentials, ForgeURLs, ReleaseChannel
 
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s : %(levelname)s : %(message)s")
 load_dotenv(Path(PurePath(__file__).parents[1], ".env"))

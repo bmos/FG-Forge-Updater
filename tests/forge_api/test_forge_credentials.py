@@ -3,7 +3,7 @@ from dataclasses import FrozenInstanceError
 import pytest
 from polyfactory.factories import DataclassFactory
 
-from src.forge_api import ForgeCredentials
+from forge_api import ForgeCredentials
 
 
 class ForgeCredentialsFactory(DataclassFactory[ForgeCredentials]):

@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from src.dropzone import DropzoneErrorHandling, DropzoneException, LongUploadException, ToastErrorException
+from dropzone import DropzoneErrorHandling, DropzoneException, LongUploadException, ToastErrorException
 
 
 def mock_element() -> MagicMock:

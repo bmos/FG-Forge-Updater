@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from src.forge_api import ForgeItem, ForgeURLs
+from forge_api import ForgeItem, ForgeURLs
 from src.main import construct_objects
 
 
