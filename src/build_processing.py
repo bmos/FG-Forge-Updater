@@ -1,5 +1,6 @@
 import itertools
 import logging
+import re
 from pathlib import Path, PurePath
 from zipfile import ZipFile
 
@@ -34,7 +35,8 @@ def strip_images(soup: BeautifulSoup) -> BeautifulSoup:
 def readme_html(readme) -> str:
     """returns an html-formatted string"""
     markdown_text = readme.read(README_FILE_NAME).decode("UTF-8")
-    markdown_html = markdown(markdown_text, extensions=["extra", "nl2br", "smarty"])
+    markdown_text_clean = re.sub("!\[]\(.+\)", "", markdown_text)
+    markdown_html = markdown(markdown_text_clean, extensions=["extra", "nl2br", "smarty"])
     soup = BeautifulSoup(markdown_html, "html.parser")
     soup = strip_images(soup)
     soup = table_styling(soup)
