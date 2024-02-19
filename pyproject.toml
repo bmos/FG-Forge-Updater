@@ -22,7 +22,7 @@ dev = [
     "polyfactory==2.14.1",
     "pre-commit==3.6.1",
     "pytest==8.0.0",
-    "ruff==0.2.1"
+    "ruff==0.2.2"
 ]
 github-actions = [
     "pytest-emoji==0.2.0",
