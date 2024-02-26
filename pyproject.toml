@@ -21,7 +21,7 @@ dependencies = [
 dev = [
     "polyfactory==2.14.1",
     "pre-commit==3.6.2",
-    "pytest==8.0.1",
+    "pytest==8.0.2",
     "ruff==0.2.2"
 ]
 github-actions = [
