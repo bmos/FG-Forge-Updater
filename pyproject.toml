@@ -28,7 +28,7 @@ dev = [
     "pre-commit==3.7.1",
     "pytest==8.2.0",
     "ruff==0.4.4",
-    "types-beautifulsoup4==4.12.0.20240504",
+    "types-beautifulsoup4==4.12.0.20240511",
     "types-Markdown==3.6.0.20240316",
     "types-seaborn==0.13.2.20240417"
 ]
