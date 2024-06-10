@@ -27,7 +27,7 @@ dev = [
     "polyfactory==2.16.0",
     "pre-commit==3.7.1",
     "pytest==8.2.1",
-    "ruff==0.4.7",
+    "ruff==0.4.8",
     "types-beautifulsoup4==4.12.0.20240511",
     "types-Markdown==3.6.0.20240316",
     "types-seaborn==0.13.2.20240417"
