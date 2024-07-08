@@ -24,7 +24,7 @@ dependencies = [
 dev = [
     "mypy==1.10.1",
     "pandas-stubs==2.2.2.240603",
-    "polyfactory==2.16.0",
+    "polyfactory==2.16.1",
     "pre-commit==3.7.1",
     "pytest==8.2.2",
     "ruff==0.5.0",
