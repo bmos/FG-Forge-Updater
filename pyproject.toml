@@ -26,7 +26,7 @@ dev = [
     "pandas-stubs==2.2.2.240603",
     "polyfactory==2.16.2",
     "pre-commit==3.7.1",
-    "pytest==8.2.2",
+    "pytest==8.3.1",
     "ruff==0.5.4",
     "types-beautifulsoup4==4.12.0.20240511",
     "types-Markdown==3.6.0.20240316",
