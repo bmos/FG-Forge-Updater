@@ -8,7 +8,7 @@ authors = [{ name = "bmos", email = "wil.thieme@protonmail.com" }]
 urls = { Repository = "https://github.com/bmos/fg_forge_updater" }
 dependencies = [
     "beautifulsoup4==4.12.3",
-    "markdown==3.6",
+    "markdown==3.7",
     "matplotlib==3.9.2",
     "mdformat-gfm==0.3.6",
     "mdformat-frontmatter==2.0.8",
