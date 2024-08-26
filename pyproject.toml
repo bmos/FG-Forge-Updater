@@ -30,7 +30,7 @@ dev = [
     "ruff==0.6.2",
     "types-beautifulsoup4==4.12.0.20240511",
     "types-Markdown==3.7.0.20240822",
-    "types-seaborn==0.13.2.20240813"
+    "types-seaborn==0.13.2.20240820"
 ]
 github-actions = [
     "pytest-cov==5.0.0",
