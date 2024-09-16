@@ -23,7 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "mypy==1.11.2",
-    "pandas-stubs==2.2.2.240807",
+    "pandas-stubs==2.2.2.240909",
     "polyfactory==2.16.2",
     "pre-commit==3.8.0",
     "pytest==8.3.2",
