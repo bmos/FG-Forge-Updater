@@ -185,6 +185,7 @@ class ForgeItem:
 
     def replace_description(self, driver: WebDriver, description_text: str) -> None:
         """Replaces the existing item description with a new HTML-formatted full description"""
+        driver.execute_script("window.scrollTo(0, document.body.scrollTop);")
         uploads_tab = WebDriverWait(driver, self.timeout).until(EC.element_to_be_clickable((By.XPATH, "//a[@id='manage-item-tab']")))
         uploads_tab.click()
 

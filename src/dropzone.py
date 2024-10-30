@@ -66,6 +66,7 @@ class DropzoneErrorHandling:
 
 def add_file_to_dropzone(driver: WebDriver, timeout: float, upload_file: Path) -> None:
     """Open the uploads tab, add file to second upload dropzone found after short pause, and ensure file progress bar appears"""
+    driver.execute_script("window.scrollTo(0, document.body.scrollTop);")
     uploads_tab = WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.XPATH, "//a[@id='manage-build-uploads-tab']")))
     uploads_tab.click()
 
