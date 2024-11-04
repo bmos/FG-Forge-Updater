@@ -33,7 +33,7 @@ dev = [
     "types-seaborn==0.13.2.20241003"
 ]
 github-actions = [
-    "pytest-cov==5.0.0",
+    "pytest-cov==6.0.0",
 ]
 
 [tool.ruff]
