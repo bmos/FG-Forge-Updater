@@ -22,23 +22,23 @@ from dropzone import DropzoneErrorHandling, add_file_to_dropzone
 class ForgeTransactionType(Enum):
     """Constants representing the strings used to represent each type of transaction for a Forge item"""
 
-    TREASURE_CHEST: str = "1"
-    PURCHASE: str = "2"
+    TREASURE_CHEST = "1"
+    PURCHASE = "2"
     # TODO: What is #3?
     # TODO: What is #4?
-    GIFT: str = "5"
+    GIFT = "5"
     # TODO: What is #6?
-    OWNER: str = "7"
+    OWNER = "7"
     # TODO: What is #8?
-    DONOR: str = "9"
+    DONOR = "9"
 
 
 class ForgeReleaseChannel(Enum):
     """Constants representing the strings used to represent each release channel in build-management comboboxes"""
 
-    LIVE: str = "1"
-    TEST: str = "2"
-    NONE: str = "0"
+    LIVE = "1"
+    TEST = "2"
+    NONE = "0"
 
 
 @dataclass(frozen=True, init=False)
