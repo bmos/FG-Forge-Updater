@@ -60,4 +60,5 @@ def test_forge_item_login() -> None:
     expected_find_element = [call(by, value) for (by, value) in TEST_CALLS]
     expected_find_element.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
     expected_find_element.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
+    expected_find_element.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
     assert mock_session.driver.find_element.mock_calls == expected_find_element
