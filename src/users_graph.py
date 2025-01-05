@@ -8,7 +8,7 @@ from matplotlib import font_manager
 from matplotlib import rcParams
 
 with tempfile.NamedTemporaryFile() as tmp_font:
-    urllib.request.urlretrieve("https://github.com/google/fonts/raw/main/ofl/lexend/Lexend%5Bwght%5D.ttf?raw=true", tmp_font.name)  #nosec B310
+    urllib.request.urlretrieve("https://github.com/google/fonts/raw/main/ofl/lexend/Lexend%5Bwght%5D.ttf?raw=true", tmp_font.name)  # nosec B310
     font_manager.fontManager.addfont(tmp_font.name)
     rcParams["font.family"] = "Lexend"
 
