@@ -1,3 +1,5 @@
+import os
+import tempfile
 import urllib.request
 from pathlib import Path
 
@@ -7,11 +9,11 @@ import seaborn as sns
 from matplotlib import font_manager
 from matplotlib import rcParams
 
-# Downloading the font file
-urllib.request.urlretrieve("https://github.com/google/fonts/raw/main/ofl/lexend/Lexend%5Bwght%5D.ttf?raw=true", "/tmp/lexend.ttf")
-if Path("/tmp/lexend.ttf").is_file():
-    font_manager.fontManager.addfont("/tmp/lexend.ttf")
-    rcParams["font.family"] = "Lexend"
+with tempfile.NamedTemporaryFile() as tmp_font:
+    urllib.request.urlretrieve("https://github.com/google/fonts/raw/main/ofl/lexend/Lexend%5Bwght%5D.ttf?raw=true", tmp_font.name)
+    if tmp.is_file():
+        font_manager.fontManager.addfont(tmp_font.name)
+        rcParams["font.family"] = "Lexend"
 
 
 def graph_users(sales: list[dict[str, (str | int | None)]]) -> None:
