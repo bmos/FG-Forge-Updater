@@ -1,7 +1,5 @@
-import os
 import tempfile
 import urllib.request
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -11,7 +9,7 @@ from matplotlib import rcParams
 
 with tempfile.NamedTemporaryFile() as tmp_font:
     urllib.request.urlretrieve("https://github.com/google/fonts/raw/main/ofl/lexend/Lexend%5Bwght%5D.ttf?raw=true", tmp_font.name)
-    if tmp.is_file():
+    if tmp_font.is_file():
         font_manager.fontManager.addfont(tmp_font.name)
         rcParams["font.family"] = "Lexend"
 
