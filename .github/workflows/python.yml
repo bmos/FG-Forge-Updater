@@ -36,7 +36,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@42b3e2a67abaefa8cd01c6f53ac3e86b4b420d4a  # 0.5.14
+              uses: install-pinned/uv@142493f5b5da3369d376dd54a60c8f99ba67680d  # 0.5.14
 
             - name: Install dependencies
               run: |
@@ -60,7 +60,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@42b3e2a67abaefa8cd01c6f53ac3e86b4b420d4a  # 0.5.14
+              uses: install-pinned/uv@142493f5b5da3369d376dd54a60c8f99ba67680d  # 0.5.14
 
             - name: Install dependencies
               run: |
@@ -84,7 +84,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@42b3e2a67abaefa8cd01c6f53ac3e86b4b420d4a  # 0.5.14
+              uses: install-pinned/uv@142493f5b5da3369d376dd54a60c8f99ba67680d  # 0.5.14
 
             - name: Install dependencies
               run: |
@@ -108,7 +108,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@42b3e2a67abaefa8cd01c6f53ac3e86b4b420d4a  # 0.5.14
+              uses: install-pinned/uv@142493f5b5da3369d376dd54a60c8f99ba67680d  # 0.5.14
 
             - name: Install bandit
               run: |
@@ -132,7 +132,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@42b3e2a67abaefa8cd01c6f53ac3e86b4b420d4a  # 0.5.14
+              uses: install-pinned/uv@142493f5b5da3369d376dd54a60c8f99ba67680d  # 0.5.14
 
             - name: Install dependencies
               run: |
@@ -156,7 +156,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@42b3e2a67abaefa8cd01c6f53ac3e86b4b420d4a  # 0.5.14
+              uses: install-pinned/uv@142493f5b5da3369d376dd54a60c8f99ba67680d  # 0.5.14
 
             - name: Install dependencies
               run: |
