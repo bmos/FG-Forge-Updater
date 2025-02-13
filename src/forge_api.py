@@ -61,6 +61,7 @@ class ForgeCredentials:
 
     @staticmethod
     def get_csrf_token(session: requestium.Session, urls: ForgeURLs) -> str | None:
+        """Retrieves the csrf token from the page header. Returns string "None" if not found."""
         response = session.get(
             urls.MANAGE_CRAFT,
         )
