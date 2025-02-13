@@ -5,15 +5,15 @@
 | Name                                                        |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |------------------------------------------------------------ | -------: | -------: | -------: | -------: | ------: | --------: |
 | src/\_\_init\_\_.py                                         |        0 |        0 |        0 |        0 |    100% |           |
-| src/build\_processing.py                                    |       42 |       22 |       10 |        0 |     42% |16-22, 27-32, 37-44, 49 |
-| src/dropzone.py                                             |       60 |        4 |        2 |        1 |     92% |41, 43, 50->exit, 54, 65 |
-| src/forge\_api.py                                           |      146 |       71 |        6 |        0 |     51% |99-100, 106-112, 116-123, 127-132, 136-147, 151-161, 165-175, 179-182, 186-189, 193-207, 211-215 |
+| src/build\_processing.py                                    |       41 |       22 |       10 |        0 |     41% |13-19, 24-29, 34-41, 46 |
+| src/dropzone.py                                             |       55 |        4 |        2 |        1 |     91% |41, 43, 50->exit, 54, 65 |
+| src/forge\_api.py                                           |      145 |       70 |        6 |        0 |     51% |99-100, 106-112, 116-123, 127-132, 136-147, 151-160, 164-174, 178-181, 185-188, 192-206, 210-214 |
 | src/main.py                                                 |       43 |       13 |       10 |        1 |     62% | 48-60, 64 |
 | src/users\_graph.py                                         |       28 |       15 |        0 |        0 |     46% |     20-41 |
 | tests/\_\_init\_\_.py                                       |        0 |        0 |        0 |        0 |    100% |           |
 | tests/dropzone/\_\_init\_\_.py                              |        0 |        0 |        0 |        0 |    100% |           |
 | tests/dropzone/test\_add\_file\_to\_dropzone.py             |       41 |        1 |        4 |        1 |     96% |        33 |
-| tests/dropzone/test\_dropzone\_error\_handling.py           |       55 |        3 |       10 |        3 |     91% |28, 51, 73 |
+| tests/dropzone/test\_dropzone\_error\_handling.py           |       56 |        3 |       10 |        3 |     91% |29, 52, 74 |
 | tests/forge\_api/\_\_init\_\_.py                            |        0 |        0 |        0 |        0 |    100% |           |
 | tests/forge\_api/forge\_item/\_\_init\_\_.py                |        0 |        0 |        0 |        0 |    100% |           |
 | tests/forge\_api/forge\_item/test\_forge\_item\_creation.py |       14 |        0 |        0 |        0 |    100% |           |
@@ -25,7 +25,7 @@
 | tests/main/test\_configure\_headless\_chrome.py             |       12 |        0 |        0 |        0 |    100% |           |
 | tests/main/test\_construct\_objects.py                      |       14 |        0 |        0 |        0 |    100% |           |
 | tests/main/test\_get\_build\_file.py                        |       11 |        0 |        0 |        0 |    100% |           |
-|                                                   **TOTAL** |  **549** |  **129** |   **46** |    **6** | **74%** |           |
+|                                                   **TOTAL** |  **543** |  **128** |   **46** |    **6** | **74%** |           |
 
 
 ## Setup coverage badge
