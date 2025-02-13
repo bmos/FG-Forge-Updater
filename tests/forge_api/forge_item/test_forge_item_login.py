@@ -48,6 +48,18 @@ def test_csrf_extraction() -> None:
     assert item.creds.get_csrf_token(mock_session, ForgeURLs()) == "2343c8fd56djfkl65f7ea74d518e19598ecb8150a84653a1c66d6a724bea39fb"
 
 
+def test_csrf_extraction_missing() -> None:
+    mock_session = MagicMock(spec=requestium.Session)
+    mock_session.headers = MagicMock(spec=CaseInsensitiveDict)
+    mock_session.driver = MagicMock(spec=webdriver.Chrome)
+    mock_session.driver.find_element.side_effect = find_element
+    mock_session.get.return_value.content = """<html><head></head></html>"""
+
+    creds = ForgeCredentialsFactory.build()
+    item = ForgeItem(creds, "1337", 1)
+    assert item.creds.get_csrf_token(mock_session, ForgeURLs()) == "None"
+
+
 def test_forge_item_login() -> None:
     mock_session = MagicMock(spec=requestium.Session)
     mock_session.headers = MagicMock(spec=CaseInsensitiveDict)
