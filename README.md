@@ -7,7 +7,7 @@
 | src/\_\_init\_\_.py                                         |        0 |        0 |        0 |        0 |    100% |           |
 | src/build\_processing.py                                    |       42 |       22 |       10 |        0 |     42% |16-22, 27-32, 37-44, 49 |
 | src/dropzone.py                                             |       60 |        4 |        2 |        1 |     92% |41, 43, 50->exit, 54, 65 |
-| src/forge\_api.py                                           |      146 |       72 |        6 |        1 |     49% |70, 98-99, 105-111, 115-122, 126-131, 135-146, 150-160, 164-174, 178-181, 185-188, 192-206, 210-214 |
+| src/forge\_api.py                                           |      146 |       71 |        6 |        0 |     51% |99-100, 106-112, 116-123, 127-132, 136-147, 151-161, 165-175, 179-182, 186-189, 193-207, 211-215 |
 | src/main.py                                                 |       43 |       13 |       10 |        1 |     62% | 48-60, 64 |
 | src/users\_graph.py                                         |       28 |       15 |        0 |        0 |     46% |     20-41 |
 | tests/\_\_init\_\_.py                                       |        0 |        0 |        0 |        0 |    100% |           |
@@ -17,7 +17,7 @@
 | tests/forge\_api/\_\_init\_\_.py                            |        0 |        0 |        0 |        0 |    100% |           |
 | tests/forge\_api/forge\_item/\_\_init\_\_.py                |        0 |        0 |        0 |        0 |    100% |           |
 | tests/forge\_api/forge\_item/test\_forge\_item\_creation.py |       14 |        0 |        0 |        0 |    100% |           |
-| tests/forge\_api/forge\_item/test\_forge\_item\_login.py    |       46 |        0 |        4 |        0 |    100% |           |
+| tests/forge\_api/forge\_item/test\_forge\_item\_login.py    |       55 |        0 |        4 |        0 |    100% |           |
 | tests/forge\_api/test\_forge\_credentials.py                |       14 |        0 |        0 |        0 |    100% |           |
 | tests/forge\_api/test\_forge\_release\_channels.py          |        5 |        0 |        0 |        0 |    100% |           |
 | tests/forge\_api/test\_forge\_urls.py                       |        9 |        0 |        0 |        0 |    100% |           |
@@ -25,7 +25,7 @@
 | tests/main/test\_configure\_headless\_chrome.py             |       12 |        0 |        0 |        0 |    100% |           |
 | tests/main/test\_construct\_objects.py                      |       14 |        0 |        0 |        0 |    100% |           |
 | tests/main/test\_get\_build\_file.py                        |       11 |        0 |        0 |        0 |    100% |           |
-|                                                   **TOTAL** |  **540** |  **130** |   **46** |    **7** | **74%** |           |
+|                                                   **TOTAL** |  **549** |  **129** |   **46** |    **6** | **74%** |           |
 
 
 ## Setup coverage badge
