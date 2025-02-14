@@ -5,7 +5,7 @@
 | Name                                                        |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |------------------------------------------------------------ | -------: | -------: | -------: | -------: | ------: | --------: |
 | src/\_\_init\_\_.py                                         |        0 |        0 |        0 |        0 |    100% |           |
-| src/build\_processing.py                                    |       40 |       22 |       10 |        0 |     40% |14-20, 25-30, 35-42, 47 |
+| src/build\_processing.py                                    |       39 |        1 |       10 |        0 |     98% |        46 |
 | src/dropzone.py                                             |       50 |        0 |        2 |        1 |     98% |  49->exit |
 | src/forge\_api.py                                           |      137 |       58 |        4 |        0 |     57% |113-118, 122-129, 133-138, 142-153, 157-165, 170-180, 184-187, 191-194, 198-211, 216-220 |
 | src/main.py                                                 |       43 |       13 |       10 |        1 |     62% | 48-60, 64 |
@@ -22,10 +22,11 @@
 | tests/forge\_api/test\_forge\_release\_channels.py          |        5 |        0 |        0 |        0 |    100% |           |
 | tests/forge\_api/test\_forge\_urls.py                       |        9 |        0 |        0 |        0 |    100% |           |
 | tests/main/\_\_init\_\_.py                                  |        0 |        0 |        0 |        0 |    100% |           |
+| tests/main/test\_build\_text.py                             |        8 |        0 |        0 |        0 |    100% |           |
 | tests/main/test\_configure\_headless\_chrome.py             |       12 |        0 |        0 |        0 |    100% |           |
 | tests/main/test\_construct\_objects.py                      |       14 |        0 |        0 |        0 |    100% |           |
 | tests/main/test\_get\_build\_file.py                        |       11 |        0 |        0 |        0 |    100% |           |
-|                                                   **TOTAL** |  **536** |  **112** |   **44** |    **6** | **77%** |           |
+|                                                   **TOTAL** |  **543** |   **91** |   **44** |    **6** | **82%** |           |
 
 
 ## Setup coverage badge
