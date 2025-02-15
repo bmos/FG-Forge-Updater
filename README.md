@@ -2,31 +2,15 @@
 
 [Full report](https://htmlpreview.github.io/?https://github.com/bmos/FG-Forge-Updater/blob/python-coverage-comment-action-data/htmlcov/index.html)
 
-| Name                                                        |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
-|------------------------------------------------------------ | -------: | -------: | -------: | -------: | ------: | --------: |
-| src/\_\_init\_\_.py                                         |        0 |        0 |        0 |        0 |    100% |           |
-| src/build\_processing.py                                    |       39 |        0 |       10 |        0 |    100% |           |
-| src/dropzone.py                                             |       50 |        0 |        2 |        1 |     98% |  49->exit |
-| src/forge\_api.py                                           |      137 |       58 |        4 |        0 |     57% |113-118, 122-129, 133-138, 142-153, 157-165, 170-180, 184-187, 191-194, 198-211, 216-220 |
-| src/main.py                                                 |       43 |       13 |       10 |        1 |     62% | 48-60, 64 |
-| src/users\_graph.py                                         |       27 |       15 |        0 |        0 |     44% |     19-40 |
-| tests/\_\_init\_\_.py                                       |        0 |        0 |        0 |        0 |    100% |           |
-| tests/dropzone/\_\_init\_\_.py                              |        0 |        0 |        0 |        0 |    100% |           |
-| tests/dropzone/test\_add\_file\_to\_dropzone.py             |       41 |        1 |        4 |        1 |     96% |        33 |
-| tests/dropzone/test\_dropzone\_error\_handling.py           |       55 |        3 |       10 |        3 |     91% |35, 58, 80 |
-| tests/forge\_api/\_\_init\_\_.py                            |        0 |        0 |        0 |        0 |    100% |           |
-| tests/forge\_api/forge\_item/\_\_init\_\_.py                |        0 |        0 |        0 |        0 |    100% |           |
-| tests/forge\_api/forge\_item/test\_forge\_item\_creation.py |       14 |        0 |        0 |        0 |    100% |           |
-| tests/forge\_api/forge\_item/test\_forge\_item\_login.py    |       62 |        0 |        4 |        0 |    100% |           |
-| tests/forge\_api/test\_forge\_credentials.py                |       14 |        0 |        0 |        0 |    100% |           |
-| tests/forge\_api/test\_forge\_release\_channels.py          |        5 |        0 |        0 |        0 |    100% |           |
-| tests/forge\_api/test\_forge\_urls.py                       |        9 |        0 |        0 |        0 |    100% |           |
-| tests/main/\_\_init\_\_.py                                  |        0 |        0 |        0 |        0 |    100% |           |
-| tests/main/test\_build\_text.py                             |        7 |        0 |        0 |        0 |    100% |           |
-| tests/main/test\_configure\_headless\_chrome.py             |       12 |        0 |        0 |        0 |    100% |           |
-| tests/main/test\_construct\_objects.py                      |       14 |        0 |        0 |        0 |    100% |           |
-| tests/main/test\_get\_build\_file.py                        |       11 |        0 |        0 |        0 |    100% |           |
-|                                                   **TOTAL** |  **540** |   **90** |   **44** |    **6** | **82%** |           |
+| Name                     |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
+|------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
+| src/\_\_init\_\_.py      |        0 |        0 |        0 |        0 |    100% |           |
+| src/build\_processing.py |       39 |        0 |       10 |        0 |    100% |           |
+| src/dropzone.py          |       50 |        0 |        2 |        1 |     98% |  49->exit |
+| src/forge\_api.py        |      137 |       58 |        4 |        0 |     57% |113-118, 122-129, 133-138, 142-153, 157-165, 170-180, 184-187, 191-194, 198-211, 216-220 |
+| src/main.py              |       43 |       13 |       10 |        1 |     62% | 48-60, 64 |
+| src/users\_graph.py      |       27 |       15 |        0 |        0 |     44% |     19-40 |
+|                **TOTAL** |  **296** |   **86** |   **26** |    **2** | **70%** |           |
 
 
 ## Setup coverage badge
