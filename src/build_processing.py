@@ -48,7 +48,7 @@ def get_readme(new_files: list[Path], no_images: bool = False, readme_name: str 
 
 def get_build(file_path: PurePath, env_file: str) -> Path:
     """Combine PurePath and file name into a Path object, ensure that a file exists there, and return the Path."""
-    new_file = Path(file_path, env_file)
+    new_file = Path(file_path / env_file)
     logging.info("File upload path determined to be: %s", new_file)
     if not new_file.is_file():
         error_msg = f"File at {new_file!s} is not found."

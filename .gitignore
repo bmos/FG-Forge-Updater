@@ -3,6 +3,7 @@ cumulative_users.png
 
 # FantasyGrounds filetypes
 *.ext
+!markdown.ext
 *.mod
 *.pak
 
