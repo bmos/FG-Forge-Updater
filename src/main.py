@@ -45,7 +45,7 @@ def construct_objects() -> tuple[list[Path], ForgeItem, ForgeURLs]:
 
 def main() -> None:
     """Hey, I just met you, and this is crazy, but I'm the main function, so call me maybe."""
-    load_dotenv(Path(PurePath(__file__).parents[1], ".env"))
+    load_dotenv(Path(__file__).parents[1] / ".env")
     new_files, item, urls = construct_objects()
 
     with requestium.Session(driver=webdriver.Chrome(options=configure_headless_chrome())) as s:
