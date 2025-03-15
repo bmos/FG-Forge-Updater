@@ -20,6 +20,7 @@ CHROME_ARGS: list[str] = [
     "--remote-debugging-port=9222",
     "--headless=new",
     "--window-size=1280,1024",
+    "--no-sandbox",
 ]
 
 
