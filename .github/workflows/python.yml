@@ -59,6 +59,14 @@ jobs:
                 pytest
               env:
                   COVERAGE_FILE: ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
+                  FG_RELEASE_CHANNEL: Live
+                  FG_ITEM_ID: ${{ vars.FORGE_ITEM_ID }}
+                  FG_USER_NAME: ${{ vars.FORGE_USER_NAME }}
+                  FG_USER_PASS: ${{ secrets.FORGE_USER_PASS }}
+                  FG_UL_FILE: markdown${{ env.EXTENSION }}
+                  FG_README_UPDATE: "TRUE"
+                  FG_UPLOAD_BUILD: "TRUE"
+                  FG_GRAPH_SALES: "TRUE"
 
             - name: Store coverage file
               uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
