@@ -14,12 +14,13 @@ class ForgeCredentialsFactory(DataclassFactory[ForgeCredentials]):
 
 def test_forge_credentials_creation() -> None:
     """Ensures that provided username and password are found in the ForgeCredentials object and that attempts at modifying values are not allowed."""
-    user_string = "eugene"
-    user_pass = "i_Love md5!"
+    creds = ForgeCredentials("eugene", "i_Love md5!")
+    assert creds.username == "eugene"
+    assert creds.password == "i_Love md5!"
 
-    creds = ForgeCredentials(user_string, "i_Love md5!")
+    creds = ForgeCredentials("acid_burn", "scr3wl1keUtype")
+    assert creds.username == "acid_burn"
+    assert creds.password == "scr3wl1keUtype"
 
-    assert creds.username == user_string
-    assert creds.password == user_pass
     with pytest.raises(FrozenInstanceError):
         creds.password = "god"  # type: ignore[misc]
