@@ -53,6 +53,7 @@ def test_forge_item_login_successful() -> None:
     item = ForgeItem(creds, os.environ.get("FORGE_ITEM_ID") or "", 7)
     with webdriver.Chrome(options=configure_headless_chrome()) as forge_webdriver, requestium.Session(driver=forge_webdriver) as s:
         item.login(s, ForgeURLs())
+        assert True
 
 
 def test_forge_item_login_unsuccessful() -> None:
