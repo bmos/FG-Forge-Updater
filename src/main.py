@@ -57,7 +57,8 @@ def main() -> None:
             item.upload_and_publish(s, urls, new_files, channel)
         if os.environ.get("FG_README_UPDATE", "FALSE") == "TRUE":
             readme_text = build_processing.get_markdown(new_files, os.environ.get("FG_README_NO_IMAGES", "FALSE") == "TRUE")
-            item.update_description(s, urls, readme_text)
+            if readme_text and readme_text != "":
+                item.update_description(s, urls, readme_text)
 
 
 if __name__ == "__main__":
