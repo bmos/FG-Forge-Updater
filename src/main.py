@@ -56,7 +56,7 @@ def main() -> None:
             channel = ForgeReleaseChannel[os.environ.get("FG_RELEASE_CHANNEL", "LIVE").upper()]
             item.upload_and_publish(s, urls, new_files, channel)
         if os.environ.get("FG_README_UPDATE", "FALSE") == "TRUE":
-            readme_text = build_processing.get_readme(new_files, os.environ.get("FG_README_NO_IMAGES", "FALSE") == "TRUE")
+            readme_text = build_processing.get_markdown(new_files, os.environ.get("FG_README_NO_IMAGES", "FALSE") == "TRUE")
             item.update_description(s, urls, readme_text)
 
 

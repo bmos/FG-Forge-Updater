@@ -7,15 +7,20 @@ from tests.forge_api.test_forge_credentials import ForgeCredentialsFactory
 
 
 def test_forge_item_creation() -> None:
-    """Ensures that provided item id and timeout limit are found in the ForgeItems object and that attempts at modifying values are not allowed."""
-    item_string = "33"
-    timeout_string = 3.14159
-
+    """Ensure that provided item id and timeout limit are found in the ForgeItems object."""
     creds = ForgeCredentialsFactory.build()
-    item = ForgeItem(creds, item_string, timeout_string)
+    item_data = {"33": 3.14159, "56": 22}
+    for item_number, timeout in item_data.items():
+        item = ForgeItem(creds, item_number, timeout)
 
-    assert item.creds == creds
-    assert item.item_id == item_string
-    assert item.timeout == timeout_string
+        assert item.creds == creds
+        assert item.item_id == item_number
+        assert item.timeout == timeout
+
+
+def test_forge_item_object_immutable() -> None:
+    """Ensure that attempts at modifying values are not allowed."""
+    creds = ForgeCredentialsFactory.build()
+    item = ForgeItem(creds, "5", 7)
     with pytest.raises(FrozenInstanceError):
-        item.item_id = "7"  # type: ignore[misc]
+        item.item_id = "15"  # type: ignore[misc]
