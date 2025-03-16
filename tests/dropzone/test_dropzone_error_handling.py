@@ -28,7 +28,7 @@ def test_check_report_toast_error() -> None:
 
     def find_element(by: By, value: str) -> MagicMock | None:
         """Return a mock WebElement for a toast error where all child elements have a return value containing the error text."""
-        if by == By.XPATH and value == "//*[@class='toast toast-error']":
+        if (by, value) == (By.XPATH, "//*[@class='toast toast-error']"):
             element = mock_element()
             element.find_element.return_value.text = error_text
             return element
@@ -46,12 +46,12 @@ def test_check_report_dropzone_upload_error() -> None:
 
     def find_element(by: By, value: str) -> MagicMock | None:
         """Return a mock WebElement for a dropzone tooltip error or error message based on the (by, value) pairs."""
-        if by == By.CLASS_NAME and value == "dz-error-message":
+        if (by, value) == (By.CLASS_NAME, "dz-error-message"):
             element = mock_element()
             element.value_of_css_property.return_value = "block"
             element.find_element.side_effect = find_element
             return element
-        if by == By.TAG_NAME and value == "span":
+        if (by, value) == (By.TAG_NAME, "span"):
             element = mock_element()
             element.get_attribute.return_value = error_text
             return element
@@ -69,11 +69,11 @@ def test_check_report_upload_percentage() -> None:
 
     def find_element(by: By, value: str) -> MagicMock | None:
         """Return a mock WebElement with all css properties. Return sizes in pixels depending on the (by, value) pairs."""
-        if by == By.CLASS_NAME and value == "dz-upload":
+        if (by, value) == (By.CLASS_NAME, "dz-upload"):
             element = mock_element()
             element.value_of_css_property.return_value = "55px"
             return element
-        if by == By.CLASS_NAME and value == "dz-progress":
+        if (by, value) == (By.CLASS_NAME, "dz-progress"):
             element = mock_element()
             element.value_of_css_property.return_value = "80px"
             return element
