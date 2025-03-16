@@ -8,6 +8,8 @@ import mdformat
 from bs4 import BeautifulSoup
 from markdown import markdown
 
+logger = logging.getLogger(__name__)
+
 
 def apply_styles_to_table(soup: BeautifulSoup) -> BeautifulSoup:
     """Style tables for better legibility."""
@@ -51,7 +53,7 @@ def get_markdown(new_files: list[Path], no_images: bool = False, readme_name: st
 def get_build(file_path: PurePath, env_file: str) -> Path:
     """Combine PurePath and file name into a Path object, ensure that a file exists there, and return the Path."""
     new_file = Path(file_path / env_file)
-    logging.info("File upload path determined to be: %s", new_file)
+    logger.info("File upload path determined to be: %s", new_file)
     if not new_file.is_file():
         error_msg = f"File at {new_file!s} is not found."
         raise FileNotFoundError(error_msg)

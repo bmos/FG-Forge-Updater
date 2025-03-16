@@ -18,6 +18,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from src.dropzone import add_file_to_dropzone, check_report_dropzone_upload_error, check_report_toast_error, check_report_upload_percentage
 
+logger = logging.getLogger(__name__)
+
 
 class ForgeLoginException(BaseException):
     """Exception to be raised when forge login is unsuccessful."""
@@ -105,14 +107,14 @@ class ForgeItem:
                 error_msg = f"Attempted login as {self.creds.username} was unsuccessful"
                 raise ForgeLoginException(error_msg)
             except TimeoutException:
-                logging.info("Logged in as %s", self.creds.username)
+                logger.info("Logged in as %s", self.creds.username)
                 session.transfer_driver_cookies_to_session(copy_user_agent=True)
                 session.headers.update({"X-CSRF-TOKEN": self.creds.get_csrf_token(session, urls)})
 
         except TimeoutException:
             try:
                 WebDriverWait(session.driver, self.timeout).until(ec.presence_of_element_located((By.NAME, "items-table_length")))
-                logging.info("Already logged in")
+                logger.info("Already logged in")
             except TimeoutException as e:
                 error_msg = "No username or password field found, or login button is not clickable."
                 raise TimeoutException(error_msg) from e
@@ -140,16 +142,16 @@ class ForgeItem:
     def upload_and_publish(self, session: requestium.Session, urls: ForgeURLs, new_files: list[Path], channel: ForgeReleaseChannel) -> None:
         """Coordinate sequential use of other class methods to upload and publish a new build to the FG Forge."""
         self.login(session, urls)
-        logging.info("Uploading new build to Forge item")
+        logger.info("Uploading new build to Forge item")
         self.open_items_list(session.driver, urls)
         self.open_item_page(session.driver)
         self.add_build(session.driver, new_files)
 
         if channel is ForgeReleaseChannel.NONE:
-            logging.info("Target channel is set to none, not setting new build to a release channel.")
+            logger.info("Target channel is set to none, not setting new build to a release channel.")
             return
         latest_build_id = max(self.get_item_builds(session, urls), key=lambda build: int(build["build_num"]))["id"]
-        logging.info("Assigning new build to Forge channel: %s: %s", channel, channel.value)
+        logger.info("Assigning new build to Forge channel: %s: %s", channel, channel.value)
         self.set_build_channel(session, urls, latest_build_id, channel)
 
     def add_build(self, driver: WebDriver, new_builds: list[Path]) -> None:
@@ -163,9 +165,9 @@ class ForgeItem:
         check_report_toast_error(driver, self.timeout)
         check_report_dropzone_upload_error(driver, self.timeout)
         check_report_upload_percentage(driver)
-        logging.info("Build upload complete")
+        logger.info("Build upload complete")
 
-    def get_sales(self, session: requestium.Session, urls: ForgeURLs, limit_count: int = -1) -> list:
+    def get_sales(self, session: requestium.Session, urls: ForgeURLs, limit_count: int = -1) -> list[dict[str, str | int | None]]:
         """Retrieve a list of sales for this Forge item, filter it by item_id and return the filtered list."""
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         response = session.post(urls.API_SALES, data=f"draw=1&length={limit_count}", headers=headers)
@@ -174,24 +176,24 @@ class ForgeItem:
         def is_sale_type(sale: dict[str, str], sale_type: ForgeTransactionType) -> bool:
             return sale["item_id"] == self.item_id and sale["transaction_type_id"] == sale_type.value
 
-        sales = [sale for sale in sales if is_sale_type(sale, ForgeTransactionType.PURCHASE)]
-        logging.info("Found %s transactions with transaction type %s for Forge item %s", len(sales), ForgeTransactionType.PURCHASE, self.item_id)
+        filtered_sales = [sale for sale in sales if is_sale_type(sale, ForgeTransactionType.PURCHASE)]
+        logger.info("Found %s transactions with transaction type %s for Forge item %s", len(filtered_sales), ForgeTransactionType.PURCHASE, self.item_id)
 
-        return sales
+        return list(filtered_sales)
 
-    def get_item_builds(self, session: requestium.Session, urls: ForgeURLs) -> dict:
+    def get_item_builds(self, session: requestium.Session, urls: ForgeURLs) -> list[dict[str, int]]:
         """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
         response = session.post(
             f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table",
         )
-        return response.json()["data"]
+        return list(response.json()["data"])
 
-    def set_build_channel(self, session: requestium.Session, urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
+    def set_build_channel(self, session: requestium.Session, urls: ForgeURLs, build_id: int, channel: ForgeReleaseChannel) -> bool:
         """Set the build channel of this Forge item to the specified value, returning True on 200 OK."""
         response = session.post(
             f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}",
         )
-        return response.status_code == 200
+        return bool(response.status_code == 200)
 
     def replace_description(self, driver: WebDriver, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""
@@ -203,18 +205,18 @@ class ForgeItem:
 
         description_field = driver.find_element(By.XPATH, "//div[@id='manage-item']").find_element(By.CLASS_NAME, "note-editable")
         description_field.clear()
-        logging.info("Forge item description cleared")
+        logger.info("Forge item description cleared")
         driver.execute_script("arguments[0].innerHTML = arguments[1];", description_field, description_text)
         time.sleep(0.25)
 
         submit_button.click()
         time.sleep(0.25)
-        logging.info("Forge item description uploaded")
+        logger.info("Forge item description uploaded")
 
     def update_description(self, session: requestium.Session, urls: ForgeURLs, description: str) -> None:
         """Coordinates sequential use of other class methods to update the item description for an item on the FG Forge."""
         self.login(session, urls)
-        logging.info("Updating Forge item description")
+        logger.info("Updating Forge item description")
         self.open_items_list(session.driver, urls)
         self.open_item_page(session.driver)
         self.replace_description(session.driver, description)
