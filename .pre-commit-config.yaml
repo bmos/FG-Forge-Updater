@@ -28,6 +28,7 @@ repos:
       rev: v1.15.0
       hooks:
           - id: mypy
+            args: [--ignore-missing-imports, --disable-error-code=import-untyped]
 ci:
     autoupdate_branch: 'pre-commit/update-hooks'
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
