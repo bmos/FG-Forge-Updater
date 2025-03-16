@@ -13,10 +13,10 @@ from src.users_graph import graph_users
 def test_create_graph() -> None:
     """Ensure an image file is created."""
     load_dotenv(Path(__file__).parents[2] / ".env")
-    user_name = os.environ.get("FG_USER_NAME") or ""
-    user_pass = os.environ.get("FG_USER_PASS") or ""
+    user_name = os.environ.get("FG_USER_NAME", "")
+    user_pass = os.environ.get("FG_USER_PASS", "")
     creds = ForgeCredentials(user_name, user_pass)
-    item_id = os.environ.get("FG_ITEM_ID") or ""
+    item_id = os.environ.get("FG_ITEM_ID", "")
     item = ForgeItem(creds, item_id, 7)
     urls = ForgeURLs()
 

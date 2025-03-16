@@ -49,8 +49,8 @@ def test_csrf_extraction_missing() -> None:
 
 def test_forge_item_login_successful() -> None:
     load_dotenv(Path(__file__).parents[3] / ".env")
-    creds = ForgeCredentials(os.environ.get("FG_USER_NAME") or "", os.environ.get("FG_USER_PASS") or "")
-    item = ForgeItem(creds, os.environ.get("FORGE_ITEM_ID") or "", 7)
+    creds = ForgeCredentials(os.environ.get("FG_USER_NAME", ""), os.environ.get("FG_USER_PASS", ""))
+    item = ForgeItem(creds, os.environ.get("FORGE_ITEM_ID", ""), 7)
     with webdriver.Chrome(options=configure_headless_chrome()) as forge_webdriver, requestium.Session(driver=forge_webdriver) as s:
         item.login(s, ForgeURLs())
         assert True
