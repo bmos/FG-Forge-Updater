@@ -2,6 +2,8 @@ name: Python checks
 
 on:
     push:
+        branches:
+          - 'main'
         paths:
           - '**.py'
           - 'pyproject.toml'
@@ -23,8 +25,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                python-version: ["3.11", "3.12", "3.13"]
-                os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+                python-version: ['3.11', '3.12', '3.13']
+                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
 
         runs-on: ${{ matrix.os }}
 
@@ -58,7 +60,7 @@ jobs:
               run: |
                 pytest
               env:
-                  COVERAGE_FILE: ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
+                  COVERAGE_FILE: '.coverage.${{ matrix.os }}.${{ matrix.python-version }}'
                   FG_RELEASE_CHANNEL: Live
                   FG_ITEM_ID: ${{ vars.FORGE_ITEM_ID }}
                   FG_USER_NAME: ${{ vars.FORGE_USER_NAME }}
@@ -84,7 +86,7 @@ jobs:
             - name: Set up Python 3.11
               uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
               with:
-                  python-version: "3.11"
+                  python-version: '3.11'
                   cache: pip
 
             - name: Install uv
@@ -113,7 +115,7 @@ jobs:
             - name: Set up Python 3.13
               uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
               with:
-                  python-version: "3.13"
+                  python-version: '3.13'
                   cache: pip
 
             - name: Install uv
@@ -142,7 +144,7 @@ jobs:
             - name: Set up Python 3.13
               uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
               with:
-                  python-version: "3.13"
+                  python-version: '3.13'
                   cache: pip
 
             - name: Install uv
@@ -165,7 +167,7 @@ jobs:
             - name: Set up Python 3.13
               uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
               with:
-                  python-version: "3.13"
+                  python-version: '3.13'
                   cache: pip
 
             - name: Install uv
@@ -221,8 +223,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                python-version: ["3.11", "3.12", "3.13"]
-                os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+                python-version: ['3.11', '3.12', '3.13']
+                os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
 
         runs-on: ${{ matrix.os }}
 
