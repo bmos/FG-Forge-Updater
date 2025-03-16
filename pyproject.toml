@@ -121,5 +121,5 @@ omit = [
 
 [tool.coverage.report]
 exclude_also = [
-    "logging.info",
+    "logging.",
 ]
