@@ -10,6 +10,8 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
+logger = logging.getLogger(__name__)
+
 
 class ToastErrorException(BaseException):
     """Exception to be raised when toast error messages are shown."""
@@ -36,9 +38,9 @@ def check_report_toast_error(driver: WebDriver, timeout_seconds: float = 7) -> N
         toast_message = toast_error_box.find_element(By.CLASS_NAME, "toast-message").text
         raise ToastErrorException(toast_message)
     except TimeoutException:
-        logging.info("No toast message found")
+        logger.info("No toast message found")
     except NoSuchElementException:
-        logging.info("No toast error or error message found")
+        logger.info("No toast error or error message found")
 
 
 def check_report_dropzone_upload_error(driver: WebDriver, timeout_seconds: float = 7) -> None:
@@ -50,7 +52,7 @@ def check_report_dropzone_upload_error(driver: WebDriver, timeout_seconds: float
             dropzone_error_message = dropzone_error_box.find_element(By.TAG_NAME, "span").get_attribute("innerHTML")
             raise DropzoneException(dropzone_error_message)
     except TimeoutException:
-        logging.info("No dropzone error found")
+        logger.info("No dropzone error found")
 
 
 def check_report_upload_percentage(driver: WebDriver) -> None:
@@ -62,7 +64,7 @@ def check_report_upload_percentage(driver: WebDriver) -> None:
         error_msg = f"File upload timed out at {upload_progress:.0f}%"
         raise LongUploadException(error_msg)
     except NoSuchElementException:
-        logging.info("No file progress bars found")
+        logger.info("No file progress bars found")
 
 
 def add_file_to_dropzone(driver: WebDriver, timeout: float, upload_file: Path) -> None:
@@ -78,7 +80,7 @@ def add_file_to_dropzone(driver: WebDriver, timeout: float, upload_file: Path) -
 
     try:
         WebDriverWait(driver, timeout).until(ec.presence_of_element_located((By.CLASS_NAME, "dz-upload")))
-        logging.info("File queued in dropzone")
+        logger.info("File queued in dropzone")
     except TimeoutException as e:
         error_msg = "File drag and drop didn't work!"
         raise TimeoutException(error_msg) from e
