@@ -169,8 +169,11 @@ class ForgeItem:
 
     def get_sales(self, session: requestium.Session, urls: ForgeURLs, limit_count: int = -1) -> list[dict[str, str | int | None]]:
         """Retrieve a list of sales for this Forge item, filter it by item_id and return the filtered list."""
+        self.login(session, urls)
+
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         response = session.post(urls.API_SALES, data=f"draw=1&length={limit_count}", headers=headers)
+
         sales = response.json()["data"]
 
         def is_sale_type(sale: dict[str, str], sale_type: ForgeTransactionType) -> bool:
