@@ -8,7 +8,7 @@ permissions:
 jobs:
   ruff-format:
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, 'apply-ruff-fixes' ) }}
+    if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, '#ruff auto fix' ) }}
 
     permissions:
       pull-requests: write
@@ -74,7 +74,7 @@ jobs:
   ruff-check:
     needs: ruff-format
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, 'apply-ruff-fixes' ) }}
+    if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, '#ruff auto fix' ) }}
 
     permissions:
       pull-requests: write
