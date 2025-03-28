@@ -35,6 +35,11 @@ jobs:
             exit 1
           fi
 
+      - uses: dkershner6/reaction-action@97ede302a1b145b3739dec3ca84a489a34ef48b5  # v2.2.1
+        if: success()
+        with:
+          commentId: ${{ github.event.comment.id }}
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Checkout PR
