@@ -1,0 +1,78 @@
+name: Python fixes
+
+on: issue_comment
+
+permissions:
+  contents: read
+
+jobs:
+  ruff-format:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request and contains( github.event.issue_comment.comment, '@ruff' ) }}
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install uv
+        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828  # v0.6.10
+
+      - name: Install module and dependencies
+        run: |
+          uv pip install --system -e .[dev]
+
+      - id: cache-ruff
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        with:
+          path: ruff_cache
+          key: ${{ runner.os }}-ruff-${{ matrix.python-version }}
+
+      - name: Run ruff format
+        run: |
+          ruff format .
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
+        with:
+          commit_message: Ruff formatting
+
+  ruff-check:
+    needs: ruff-format
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request and contains( github.event.issue_comment.comment, '@ruff' ) }}
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install uv
+        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828  # v0.6.10
+
+      - name: Install module and dependencies
+        run: |
+          uv pip install --system -e .[dev]
+
+      - id: cache-ruff
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        with:
+          path: ruff_cache
+          key: ${{ runner.os }}-ruff-${{ matrix.python-version }}
+
+      - name: Run ruff --fix
+        run: |
+          ruff check --output-format=github --fix .
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
+        with:
+          commit_message: Ruff check auto-fixes
