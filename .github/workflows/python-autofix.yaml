@@ -11,10 +11,11 @@ jobs:
     if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, 'apply-ruff-fixes' ) }}
 
     steps:
-      - name: Check if commenter has commit permissions
+      - name: Check if commenter has write access to the PR branch
         id: check_permissions
         run: |
           COMMENTER=${{ github.event.comment.user.login }}
+          PR_BRANCH=${{ github.event.issue.pull_request.head.ref }}
           REPO_OWNER=${{ github.repository_owner }}
 
           # Get the permission level of the commenter
@@ -24,12 +25,15 @@ jobs:
 
           echo "Permission level of $COMMENTER: $PERMISSION_LEVEL"
 
+          # If the commenter doesn't have write or admin permissions, exit
           if [[ "$PERMISSION_LEVEL" != "write" && "$PERMISSION_LEVEL" != "admin" ]]; then
-            echo "User does not have commit permissions."
+            echo "User does not have commit permissions on PR source branch."
             exit 1
           fi
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/merge
 
       - name: Set up Python 3.13
         uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
@@ -65,10 +69,11 @@ jobs:
     if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, 'apply-ruff-fixes' ) }}
 
     steps:
-      - name: Check if commenter has commit permissions
+      - name: Check if commenter has write access to the PR branch
         id: check_permissions
         run: |
           COMMENTER=${{ github.event.comment.user.login }}
+          PR_BRANCH=${{ github.event.issue.pull_request.head.ref }}
           REPO_OWNER=${{ github.repository_owner }}
 
           # Get the permission level of the commenter
@@ -78,12 +83,15 @@ jobs:
 
           echo "Permission level of $COMMENTER: $PERMISSION_LEVEL"
 
+          # If the commenter doesn't have write or admin permissions, exit
           if [[ "$PERMISSION_LEVEL" != "write" && "$PERMISSION_LEVEL" != "admin" ]]; then
-            echo "User does not have commit permissions."
+            echo "User does not have commit permissions on PR source branch."
             exit 1
           fi
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/merge
 
       - name: Set up Python 3.13
         uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
