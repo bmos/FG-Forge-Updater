@@ -7,11 +7,13 @@ on:
     paths:
       - '**.py'
       - 'pyproject.toml'
+      - '.pre-commit-config.yaml'
       - '.github/workflows/python.yml'
   pull_request:
     paths:
       - '**.py'
       - 'pyproject.toml'
+      - '.pre-commit-config.yaml'
       - '.github/workflows/python.yml'
   schedule:
     - cron:  '0 9 * * 1'
