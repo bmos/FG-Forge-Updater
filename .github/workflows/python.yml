@@ -94,7 +94,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ruff_cache
-          key: ${{ runner.os }}-ruff-${{ matrix.python-version }}
+          key: ${{ runner.os }}-ruff-3.13
 
       - name: Run ruff format
         run: |
@@ -123,7 +123,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ruff_cache
-          key: ${{ runner.os }}-ruff-${{ matrix.python-version }}
+          key: ${{ runner.os }}-ruff-3.13
 
       - name: Run ruff
         run: |
@@ -175,7 +175,7 @@ jobs:
           uses: actions/cache@v4
           with:
             path: .mypy_cache
-            key: ${{ runner.os }}-mypy-${{ matrix.python-version }}
+            key: ${{ runner.os }}-mypy-3.13
 
         - name: Run mypy
           run: |
