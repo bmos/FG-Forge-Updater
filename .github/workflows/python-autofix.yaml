@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, 'apply-ruff-fixes' ) }}
 
+    permissions:
+      pull-requests: write
+
     steps:
       - name: Check if commenter has write access to the PR branch
         id: check_permissions
@@ -71,6 +74,9 @@ jobs:
     needs: ruff-format
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, 'apply-ruff-fixes' ) }}
+
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Check if commenter has write access to the PR branch
