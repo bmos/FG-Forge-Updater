@@ -29,7 +29,11 @@ def replace_images_with_link(soup: BeautifulSoup, no_images: bool) -> BeautifulS
         new_tag = soup.new_tag("a", href=link_url)
         new_tag.string = "" if no_images else img.get("alt", "[IMG]")
         img.replace_with(new_tag)
-    return soup
+    return soups
+
+
+
+
 
 
 def readme_html(markdown_text: str, no_images: bool = False) -> str:
@@ -53,6 +57,5 @@ def get_build(file_path: PurePath, env_file: str) -> Path:
     new_file = Path(file_path, env_file)
     logger.info("File upload path determined to be: %s", new_file)
     if not new_file.is_file():
-        error_msg = f"File at {new_file!s} is not found."
-        raise FileNotFoundError(error_msg)
+        raise FileNotFoundError(f"File at {new_file!s} is not found.")
     return new_file
