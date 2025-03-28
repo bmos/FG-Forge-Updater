@@ -147,7 +147,6 @@ jobs:
       - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
         if: failure()
         with:
-          # pr-number: ${{ github.event.issue.number }}
           comment-tag: auto-fix-promo
           message: |
             **Ruff**
