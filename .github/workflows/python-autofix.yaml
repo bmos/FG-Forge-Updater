@@ -135,3 +135,17 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
         with:
           commit_message: Ruff check auto-fixes
+
+      - name: Run ruff
+        run: |
+          ruff check --output-format=github --diff .
+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+        if: ${{ failure() }}
+        with:
+          # pr-number: ${{ github.event.issue.number }}
+          comment-tag: auto-fix-promo
+          message: |
+            **Ruff**
+            After applying automatic fixes, ruff issues are still present.
+            Please fix remaining issues manually.
