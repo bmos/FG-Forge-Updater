@@ -12,6 +12,7 @@ jobs:
 
     permissions:
       pull-requests: write
+      contents: write
 
     steps:
       - name: Check if commenter has write access to the PR branch
@@ -77,6 +78,7 @@ jobs:
 
     permissions:
       pull-requests: write
+      contents: write
 
     steps:
       - name: Check if commenter has write access to the PR branch
