@@ -108,7 +108,7 @@ jobs:
         with:
           comment-tag: auto-fix-promo
           message: |
-            **Ruff**
+            ### Ruff
             Ruff has found at least one issue.
             Comment `#ruff auto fix` to have available safe fixes automatically applied.
 
@@ -149,7 +149,7 @@ jobs:
         with:
           comment-tag: auto-fix-promo
           message: |
-            **Ruff**
+            ### Ruff
             Ruff has found at least one issue.
             Comment `#ruff auto fix` to have available safe fixes automatically applied.
 

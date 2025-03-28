@@ -151,7 +151,7 @@ jobs:
         with:
           comment-tag: auto-fix-promo
           message: |
-            **Ruff**
+            ### Ruff
             After applying automatic fixes, ruff issues are still present.
             Please fix remaining issues manually.
 
