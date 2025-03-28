@@ -36,10 +36,10 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -62,52 +62,26 @@ jobs:
         run: |
           pytest
         env:
-          COVERAGE_FILE: '.coverage.${{ matrix.os }}.${{ matrix.python-version }}'
+          COVERAGE_FILE: '.coverage.${{ runner.os }}.${{ matrix.python-version }}'
 
       - name: Store coverage file
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
-          name: coverage-${{ matrix.os }}${{ matrix.python-version }}
-          path: .coverage.${{ matrix.os }}.${{ matrix.python-version }}
+          name: coverage-${{ runner.os }}${{ matrix.python-version }}
+          path: .coverage.${{ runner.os }}.${{ matrix.python-version }}
           include-hidden-files: true
 
   ruff-format:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
-        with:
-          python-version: '3.11'
-          cache: pip
-
-      - name: Install uv
-        uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
-
-      - name: Install module and dependencies
-        run: |
-          uv pip install --system -e .[dev]
-
-      - id: cache-ruff
-        uses: actions/cache@v4
-        with:
-          path: ruff_cache
-          key: ${{ runner.os }}-ruff-${{ matrix.python-version }}
-
-      - name: Run ruff format
-        run: |
-          ruff format --diff .
-
-  ruff-check:
-    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
           python-version: '3.13'
           cache: pip
@@ -123,20 +97,70 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ruff_cache
-          key: ${{ runner.os }}-ruff-${{ matrix.python-version }}
+          key: ubuntu-latest-ruff-3.13
+
+      - name: Run ruff format
+        run: |
+          ruff format --diff .
+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+        if: failure()
+        with:
+          comment-tag: auto-fix-promo
+          message: |
+            ### Ruff
+            Ruff has found at least one issue.
+            Comment `#ruff auto fix` or `#ruff unsafe auto fix` to have available fixes automatically applied.
+
+  ruff-check:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install uv
+        uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
+
+      - name: Install module and dependencies
+        run: |
+          uv pip install --system -e .[dev]
+
+      - id: cache-ruff
+        uses: actions/cache@v4
+        with:
+          path: ruff_cache
+          key: ubuntu-latest-ruff-3.13
 
       - name: Run ruff
         run: |
           ruff check --output-format=github .
 
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+        if: failure()
+        with:
+          comment-tag: auto-fix-promo
+          message: |
+            ### Ruff
+            Ruff has found at least one issue.
+            Comment `#ruff auto fix` or `#ruff unsafe auto fix` to have available fixes automatically applied.
+
   bandit:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
           python-version: '3.13'
           cache: pip
@@ -156,10 +180,10 @@ jobs:
       runs-on: ubuntu-latest
 
       steps:
-        - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
         - name: Set up Python 3.13
-          uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+          uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
           with:
             python-version: '3.13'
             cache: pip
@@ -175,7 +199,7 @@ jobs:
           uses: actions/cache@v4
           with:
             path: .mypy_cache
-            key: ${{ runner.os }}-mypy-${{ matrix.python-version }}
+            key: ${{ runner.os }}-mypy-3.13
 
         - name: Run mypy
           run: |
@@ -190,9 +214,9 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
-      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e  # v4.2.1
         id: download
         with:
           pattern: coverage-*
@@ -207,7 +231,7 @@ jobs:
           MERGE_COVERAGE_FILES: true
 
       - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
         with:
           name: python-coverage-comment-action
@@ -224,10 +248,10 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
           python-version: 3.13
           cache: pip
@@ -263,14 +287,14 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
+        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
