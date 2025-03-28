@@ -56,7 +56,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .pytest_cache
-          key: ${{ runner.os }}-pytest-${{ matrix.python-version }}
+          key: ${{ matrix.os }}-pytest-${{ matrix.python-version }}
 
       - name: Test with pytest
         run: |
@@ -94,7 +94,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ruff_cache
-          key: ${{ runner.os }}-ruff-3.13
+          key: ubuntu-latest-ruff-3.13
 
       - name: Run ruff format
         run: |
@@ -132,7 +132,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ruff_cache
-          key: ${{ runner.os }}-ruff-3.13
+          key: ubuntu-latest-ruff-3.13
 
       - name: Run ruff
         run: |
@@ -193,7 +193,7 @@ jobs:
           uses: actions/cache@v4
           with:
             path: .mypy_cache
-            key: ${{ runner.os }}-mypy-3.13
+            key: ubuntu-latest-mypy-3.13
 
         - name: Run mypy
           run: |
