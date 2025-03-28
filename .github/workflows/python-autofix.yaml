@@ -8,7 +8,7 @@ permissions:
 jobs:
   ruff-format:
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, '#ruff auto fix' ) }}
+    if: ${{ github.event.issue.pull_request && (contains( github.event.comment.body, '#ruff auto fix' ) || contains( github.event.comment.body, '#ruff unsafe auto fix' )) }}
 
     permissions:
       pull-requests: write
@@ -153,6 +153,92 @@ jobs:
           message: |
             ### Ruff
             After applying automatic fixes, ruff issues are still present.
+            Please fix remaining issues manually.
+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+        if: success()
+        with:
+          comment-tag: auto-fix-promo
+          mode: delete
+
+
+
+  ruff-check-unsafe:
+    needs: ruff-format
+    runs-on: ubuntu-latest
+    if: ${{ github.event.issue.pull_request && contains( github.event.comment.body, '#ruff unsafe vauto fix' ) }}
+
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: Check if commenter has write access to the PR branch
+        id: check_permissions
+        run: |
+          COMMENTER=${{ github.event.comment.user.login }}
+          PR_BRANCH=${{ github.event.issue.pull_request.head.ref }}
+          REPO_OWNER=${{ github.repository_owner }}
+
+          # Get the permission level of the commenter
+          PERMISSION_LEVEL=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/$REPO_OWNER/${{ github.event.repository.name }}/collaborators/$COMMENTER/permission" \
+            | jq -r '.permission')
+
+          echo "Permission level of $COMMENTER: $PERMISSION_LEVEL"
+
+          # If the commenter doesn't have write or admin permissions, exit
+          if [[ "$PERMISSION_LEVEL" != "write" && "$PERMISSION_LEVEL" != "admin" ]]; then
+            echo "User does not have commit permissions on PR source branch."
+            exit 1
+          fi
+
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Checkout PR
+        run: gh pr checkout ${{ github.event.issue.number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install uv
+        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828  # v0.6.10
+
+      - name: Install module and dependencies
+        run: |
+          uv pip install --system -e .[dev]
+
+      - id: cache-ruff
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        with:
+          path: ruff_cache
+          key: ${{ runner.os }}-ruff
+
+      - name: Run ruff --fix
+        run: |
+          ruff check --output-format=github --unsafe-fixes --fix .
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
+        with:
+          commit_message: Ruff check auto-fixes
+
+      - name: Run ruff
+        run: |
+          ruff check --output-format=github --diff .
+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+        if: failure()
+        with:
+          comment-tag: auto-fix-promo
+          message: |
+            **Ruff**
+            After applying unsafe automatic fixes, ruff issues are still present.
             Please fix remaining issues manually.
 
       - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+

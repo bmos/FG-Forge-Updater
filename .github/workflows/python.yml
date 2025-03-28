@@ -110,7 +110,7 @@ jobs:
           message: |
             ### Ruff
             Ruff has found at least one issue.
-            Comment `#ruff auto fix` to have available safe fixes automatically applied.
+            Comment `#ruff auto fix` or `#ruff unsafe auto fix` to have available fixes automatically applied.
 
   ruff-check:
     runs-on: ubuntu-latest
@@ -151,7 +151,7 @@ jobs:
           message: |
             ### Ruff
             Ruff has found at least one issue.
-            Comment `#ruff auto fix` to have available safe fixes automatically applied.
+            Comment `#ruff auto fix` or `#ruff unsafe auto fix` to have available fixes automatically applied.
 
   bandit:
     runs-on: ubuntu-latest
