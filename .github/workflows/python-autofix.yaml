@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          ref: refs/pull/${{ github.event.issue.number }}/merge
+          ref: ${{ github.event.issue.pull_request.head.ref }}
 
       - name: Set up Python 3.13
         uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
@@ -61,7 +61,8 @@ jobs:
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
         with:
-          commit_message: Ruff formatting
+          commit_message: Ruff check auto-fixes
+
 
   ruff-check:
     needs: ruff-format
@@ -91,7 +92,7 @@ jobs:
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          ref: refs/pull/${{ github.event.issue.number }}/merge
+          ref: ${{ github.event.issue.pull_request.head.ref }}
 
       - name: Set up Python 3.13
         uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
