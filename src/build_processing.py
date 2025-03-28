@@ -32,10 +32,6 @@ def replace_images_with_link(soup: BeautifulSoup, no_images: bool) -> BeautifulS
     return soups
 
 
-
-
-
-
 def readme_html(markdown_text: str, no_images: bool = False) -> str:
     """Return an html-formatted string from a string formatted as markdown."""
     markdown_text = re.sub(r"!\[]\(\..+?\)", "", markdown_text)
