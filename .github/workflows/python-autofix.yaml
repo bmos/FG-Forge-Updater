@@ -35,34 +35,31 @@ jobs:
             exit 1
           fi
 
-      - uses: dkershner6/reaction-action@97ede302a1b145b3739dec3ca84a489a34ef48b5  # v2.2.1
+      - uses: dkershner6/reaction-action@97ede302a1b145b3739dec3ca84a489a34ef48b5
         if: success()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commentId: ${{ github.event.comment.id }}
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-
-      - name: Checkout PR
-        run: gh pr checkout ${{ github.event.issue.number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
         with:
           python-version: '3.13'
           cache: pip
 
       - name: Install uv
-        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828  # v0.6.10
+        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828
 
       - name: Install module and dependencies
         run: |
           uv pip install --system -e .[dev]
 
       - id: cache-ruff
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
         with:
           path: ruff_cache
           key: ${{ runner.os }}-ruff
@@ -72,7 +69,7 @@ jobs:
           ruff format .
 
       - name: Commit Changes
-        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
+        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79
         with:
           commit_message: Ruff auto-format
 
@@ -107,28 +104,25 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-
-      - name: Checkout PR
-        run: gh pr checkout ${{ github.event.issue.number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
         with:
           python-version: '3.13'
           cache: pip
 
       - name: Install uv
-        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828  # v0.6.10
+        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828
 
       - name: Install module and dependencies
         run: |
           uv pip install --system -e .[dev]
 
       - id: cache-ruff
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
         with:
           path: ruff_cache
           key: ${{ runner.os }}-ruff
@@ -138,7 +132,7 @@ jobs:
           ruff check --output-format=github --fix .
 
       - name: Commit Changes
-        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
+        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79
         with:
           commit_message: Ruff check safe auto-fixes
 
@@ -146,7 +140,7 @@ jobs:
         run: |
           ruff check --output-format=github --diff .
 
-      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8+
         if: failure()
         with:
           comment-tag: auto-fix-promo
@@ -155,7 +149,7 @@ jobs:
             After applying automatic fixes, ruff issues are still present.
             Please fix remaining issues manually.
 
-      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8+
         if: success()
         with:
           comment-tag: auto-fix-promo
@@ -193,28 +187,25 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-
-      - name: Checkout PR
-        run: gh pr checkout ${{ github.event.issue.number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Set up Python 3.13
-        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
         with:
           python-version: '3.13'
           cache: pip
 
       - name: Install uv
-        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828  # v0.6.10
+        uses: install-pinned/uv@5d89022b21b96be3404fcd0a0cd7e7d438631828
 
       - name: Install module and dependencies
         run: |
           uv pip install --system -e .[dev]
 
       - id: cache-ruff
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
         with:
           path: ruff_cache
           key: ${{ runner.os }}-ruff
@@ -224,7 +215,7 @@ jobs:
           ruff check --output-format=github --unsafe-fixes --fix .
 
       - name: Commit Changes
-        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79  # v5.1.0
+        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79
         with:
           commit_message: Ruff check (potentially) unsafe auto-fixes
 
@@ -232,7 +223,7 @@ jobs:
         run: |
           ruff check --output-format=github --diff .
 
-      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8+
         if: failure()
         with:
           comment-tag: auto-fix-promo
@@ -241,7 +232,7 @@ jobs:
             After applying unsafe automatic fixes, ruff issues are still present.
             Please fix remaining issues manually.
 
-      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
+      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8+
         if: success()
         with:
           comment-tag: auto-fix-promo
