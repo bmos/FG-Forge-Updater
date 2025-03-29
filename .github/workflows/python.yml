@@ -1,304 +1,314 @@
 name: Python checks
 
 on:
-  push:
-    branches:
-      - 'main'
-    paths:
-      - '**.py'
-      - 'pyproject.toml'
-      - '.pre-commit-config.yaml'
-      - '.github/workflows/python.yml'
-  pull_request:
-    paths:
-      - '**.py'
-      - 'pyproject.toml'
-      - '.pre-commit-config.yaml'
-      - '.github/workflows/python.yml'
-  schedule:
-    - cron:  '0 9 * * 1'
-  workflow_dispatch:
+    push:
+        branches:
+            - main
+    pull_request:
+    schedule:
+      - cron:  '0 9 * * 1'
+    workflow_dispatch:
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.11', '3.12', '3.13']
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+    test:
+        strategy:
+            fail-fast: false
+            matrix:
+                python-version:
+                    - '3.11'
+                    - '3.12'
+                    - '3.13'
+                os:
+                    - 'ubuntu-latest'
+                    - 'windows-latest'
+                    - 'macos-latest'
+        runs-on: ${{ matrix.os }}
 
-    runs-on: ${{ matrix.os }}
+        permissions:
+            contents: write
 
-    permissions:
-      contents: write
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
+              with:
+                  egress-policy: audit
 
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: pip
 
-      - name: Install uv
-        uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
+            - name: Install uv
+              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
 
-      - name: Install module and dependencies
-        run: |
-          uv pip install --system -e .[dev]
-          uv pip install --system -e .[github-actions]
+            - name: Install module and dependencies
+              run: |
+                  uv pip install --system -e .[dev]
+                  uv pip install --system -e .[github-actions]
 
-      - id: cache-pytest
-        uses: actions/cache@v4
-        with:
-          path: .pytest_cache
-          key: ${{ runner.os }}-pytest-${{ matrix.python-version }}
+            - id: cache-pytest
+              uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+              with:
+                  path: .pytest_cache
+                  key: ${{ runner.os }}-pytest-${{ matrix.python-version }}-${{ github.run_id }}
 
-      - name: Test with pytest
-        run: |
-          pytest
-        env:
-          COVERAGE_FILE: '.coverage.${{ runner.os }}.${{ matrix.python-version }}'
+            - name: Test with pytest
+              run: |
+                  pytest
+              env:
+                  COVERAGE_FILE: .coverage.${{ runner.os }}.${{ matrix.python-version }}
 
-      - name: Store coverage file
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
-        with:
-          name: coverage-${{ runner.os }}${{ matrix.python-version }}
-          path: .coverage.${{ runner.os }}.${{ matrix.python-version }}
-          include-hidden-files: true
+            - name: Store coverage file
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+              with:
+                  name: coverage-${{ runner.os }}${{ matrix.python-version }}
+                  path: .coverage.${{ runner.os }}.${{ matrix.python-version }}
+                  include-hidden-files: true
 
-  ruff-format:
-    runs-on: ubuntu-latest
+    ruff-format:
+        runs-on: ubuntu-latest
 
-    permissions:
-      pull-requests: write
+        permissions:
+            pull-requests: write
 
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
+              with:
+                  egress-policy: audit
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
-        with:
-          python-version: '3.13'
-          cache: pip
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Install uv
-        uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
+            - name: Set up Python 3.13
+              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              with:
+                  python-version: '3.13'
+                  cache: pip
 
-      - name: Install module and dependencies
-        run: |
-          uv pip install --system -e .[dev]
+            - name: Install uv
+              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
 
-      - id: cache-ruff
-        uses: actions/cache@v4
-        with:
-          path: ruff_cache
-          key: ubuntu-latest-ruff-3.13
+            - name: Install module and dependencies
+              run: |
+                  uv pip install --system -e .[dev]
 
-      - name: Run ruff format
-        run: |
-          ruff format --diff .
+            - id: cache-ruff
+              uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+              with:
+                  path: ruff_cache
+                  key: ${{ runner.os }}-ruff-3.13-${{ github.run_id }}
 
-      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
-        if: failure()
-        with:
-          comment-tag: auto-fix-promo
-          message: |
-            ### Ruff
-            Ruff has found at least one issue.
-            Comment `#ruff auto fix` or `#ruff unsafe auto fix` to have available fixes automatically applied.
+            - name: Run ruff format
+              run: |
+                  ruff format --diff .
 
-  ruff-check:
-    runs-on: ubuntu-latest
+            - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8
+              if: failure() && github.event.workflow_run.event == 'pull_request'
+              with:
+                  comment-tag: auto-fix-promo
+                  message: >
+                      ### Ruff
 
-    permissions:
-      pull-requests: write
+                      Ruff has found at least one issue.
 
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+                      Comment `#ruff auto fix` or `#ruff unsafe auto fix` to
+                      have available fixes automatically applied.
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
-        with:
-          python-version: '3.13'
-          cache: pip
+    ruff-check:
+        runs-on: ubuntu-latest
 
-      - name: Install uv
-        uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
+        permissions:
+            pull-requests: write
 
-      - name: Install module and dependencies
-        run: |
-          uv pip install --system -e .[dev]
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
+              with:
+                  egress-policy: audit
 
-      - id: cache-ruff
-        uses: actions/cache@v4
-        with:
-          path: ruff_cache
-          key: ubuntu-latest-ruff-3.13
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Run ruff
-        run: |
-          ruff check --output-format=github .
+            - name: Set up Python 3.13
+              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              with:
+                  python-version: '3.13'
+                  cache: pip
 
-      - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8  # v3.0.1+
-        if: failure()
-        with:
-          comment-tag: auto-fix-promo
-          message: |
-            ### Ruff
-            Ruff has found at least one issue.
-            Comment `#ruff auto fix` or `#ruff unsafe auto fix` to have available fixes automatically applied.
+            - name: Install uv
+              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
 
-  bandit:
-    runs-on: ubuntu-latest
+            - name: Install module and dependencies
+              run: |
+                  uv pip install --system -e .[dev]
 
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+            - id: cache-ruff
+              uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+              with:
+                  path: ruff_cache
+                  key: ${{ runner.os }}-ruff-3.13-${{ github.run_id }}
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
-        with:
-          python-version: '3.13'
-          cache: pip
+            - name: Run ruff
+              run: |
+                  ruff check --output-format=github .
 
-      - name: Install uv
-        uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
+            - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8
+              if: failure() && github.event.workflow_run.event == 'pull_request'
+              with:
+                  comment-tag: auto-fix-promo
+                  message: >
+                      ### Ruff
 
-      - name: Install module and dependencies
-        run: |
-          uv pip install --system -e .[dev]
+                      Ruff has found at least one issue.
 
-      - name: Run bandit scan
-        run: |
-          bandit -c pyproject.toml -r . -ll -ii
+                      Comment `#ruff auto fix` or `#ruff unsafe auto fix` to
+                      have available fixes automatically applied.
 
-  mypy:
-      runs-on: ubuntu-latest
+    bandit:
+        runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
+              with:
+                  egress-policy: audit
 
-        - name: Set up Python 3.13
-          uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
-          with:
-            python-version: '3.13'
-            cache: pip
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-        - name: Install uv
-          uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
+            - name: Set up Python 3.13
+              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              with:
+                  python-version: '3.13'
+                  cache: pip
 
-        - name: Install module and dependencies
-          run: |
-            uv pip install --system -e .[dev]
+            - name: Install uv
+              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
 
-        - id: cache-mypy
-          uses: actions/cache@v4
-          with:
-            path: .mypy_cache
-            key: ${{ runner.os }}-mypy-3.13
+            - name: Install module and dependencies
+              run: |
+                  uv pip install --system -e .[dev]
 
-        - name: Run mypy
-          run: |
-            mypy .
+            - name: Run bandit scan
+              run: |
+                  bandit --confidence-level=high --severity-level=high -c pyproject.toml -r .
 
-  coverage:
-    runs-on: ubuntu-latest
-    needs: test
+    coverage:
+        runs-on: ubuntu-latest
 
-    permissions:
-      pull-requests: write
-      contents: write
+        needs: test
 
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        permissions:
+            pull-requests: write
+            contents: write
 
-      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e  # v4.2.1
-        id: download
-        with:
-          pattern: coverage-*
-          merge-multiple: true
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
+              with:
+                  egress-policy: audit
 
-      - name: Coverage comment
-        id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@d1ff8fbb5ff80feedb3faa0f6d7b424f417ad0e1  # v3.30
-        if: github.event.workflow_run.event != 'pull_request'
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MERGE_COVERAGE_FILES: true
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Store Pull Request comment to be posted
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
-        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
-        with:
-          name: python-coverage-comment-action
-          path: python-coverage-comment-action.txt
+            - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e
+              id: download
+              with:
+                  pattern: coverage-*
+                  merge-multiple: true
 
-  pre-commit:
-    runs-on: ubuntu-latest
-    needs:
-      - ruff-format
-      - ruff-check
-      - bandit
+            - name: Coverage comment
+              id: coverage_comment
+              uses: py-cov-action/python-coverage-comment-action@d1ff8fbb5ff80feedb3faa0f6d7b424f417ad0e1
+              if: github.event.workflow_run.event != 'pull_request'
+              with:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  MERGE_COVERAGE_FILES: true
 
-    permissions:
-      contents: write
+            - name: Store Pull Request comment to be posted
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+              if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+              with:
+                  name: python-coverage-comment-action
+                  path: python-coverage-comment-action.txt
 
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+    pre-commit:
+        runs-on: ubuntu-latest
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
-        with:
-          python-version: 3.13
-          cache: pip
+        needs:
+            - ruff-format
+            - ruff-check
+            - bandit
 
-      - name: Install uv
-        uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05  # 0.4.12
+        permissions:
+            contents: write
 
-      - name: Install module and dependencies
-        run: |
-          uv pip install --system -e .[dev]
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
+              with:
+                  egress-policy: audit
 
-      - id: cache-pre-commit
-        uses: actions/cache@v4
-        with:
-          path: .pre-commit-cache
-          key: ubuntu-latest-pre-commit-3.13
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Run pre-commit
-        run: |
-          pre-commit install
-          pre-commit run --all-files
-        env:
-          PRE_COMMIT_HOME: .pre-commit-cache
+            - name: Set up Python 3.13
+              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              with:
+                  python-version: 3.13
+                  cache: pip
 
-  pip-install:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.11', '3.12', '3.13']
-        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+            - name: Install uv
+              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
 
-    runs-on: ${{ matrix.os }}
+            - name: Install module and dependencies
+              run: |
+                  uv pip install --system -e .[dev]
 
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481  # v2.11.0
-        with:
-          egress-policy: audit
+            - id: cache-pre-commit
+              uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684  # v4.2.3
+              with:
+                  path: .pre-commit-cache
+                  key: ${{ runner.os }}-pre-commit-3.13
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+            - name: Run pre-commit
+              run: |
+                  pre-commit install
+                  pre-commit run --all-files
+              env:
+                  PRE_COMMIT_HOME: .pre-commit-cache
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5.4.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
+    pip-install:
+        strategy:
+            fail-fast: false
+            matrix:
+                python-version:
+                    - '3.11'
+                    - '3.12'
+                    - '3.13'
+                os:
+                    - 'ubuntu-latest'
+                    - 'windows-latest'
+                    - 'macos-latest'
 
-      - name: Install module and dependencies
-        run: |
-          pip install .
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              with:
+                  egress-policy: audit
+
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: pip
+
+            - name: Install module and dependencies
+              run: |
+                  pip install .
