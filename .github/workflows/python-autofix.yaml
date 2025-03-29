@@ -2,8 +2,7 @@ name: Python fixes
 
 on: issue_comment
 
-permissions:
-  contents: read
+permissions: read-all
 
 jobs:
   ruff-format:
