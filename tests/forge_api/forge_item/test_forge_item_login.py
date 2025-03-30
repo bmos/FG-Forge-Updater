@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
 import requestium
 from dotenv import load_dotenv
 from requests.structures import CaseInsensitiveDict

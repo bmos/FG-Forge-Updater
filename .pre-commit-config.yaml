@@ -18,17 +18,19 @@ repos:
       rev: v3.19.1
       hooks:
           - id: pyupgrade
-            args: [--py39-plus]
+            args: ['--py311-plus']
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.11.0
+      rev: v0.11.2
       hooks:
           - id: ruff
           - id: ruff-format
-    - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v1.15.0
+    - repo: https://github.com/PyCQA/bandit
+      rev: '1.8.3'
       hooks:
-          - id: mypy
-            args: [--ignore-missing-imports, --disable-error-code=import-untyped]
+          - id: bandit
+            args: ['--confidence-level=high', '--severity-level=high', '-c', 'pyproject.toml']
+            additional_dependencies: ['bandit[toml]']
+
 ci:
     autoupdate_branch: 'pre-commit/update-hooks'
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'

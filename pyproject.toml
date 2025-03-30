@@ -28,10 +28,10 @@ dev = [
     "mypy==1.15.0",
     "pandas-stubs==2.2.3.241126",
     "polyfactory==2.19.0",
-    "pre-commit==4.1.0",
+    "pre-commit==4.2.0",
     "pytest-xdist==3.6.1",
     "pytest==8.3.4",
-    "ruff==0.11.0",
+    "ruff==0.11.2",
     "types-Markdown==3.7.0.20241204",
     "types-beautifulsoup4==4.12.0.20250204",
     "types-requests==2.32.0.20250301",
@@ -39,7 +39,7 @@ dev = [
 ]
 github-actions = [
     "coverage==7.6.12",
-    "pytest-cov==6.0.0"
+    "pytest-cov==6.0.0",
 ]
 
 [tool.ruff]
@@ -96,7 +96,7 @@ ignore = [
 
 [[tool.mypy.overrides]]
 module = [
-    "requestium"
+    "requestium",
 ]
 ignore_missing_imports = true
 
@@ -122,4 +122,10 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "logger.",
+]
+
+[tool.bandit]
+exclude_dirs = [
+    "tests/",
+    ".venv/",
 ]

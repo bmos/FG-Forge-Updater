@@ -6,8 +6,7 @@ on:
         types:
             - completed
 
-permissions:
-    contents: read
+permissions: read-all
 
 jobs:
     test:
@@ -29,10 +28,15 @@ jobs:
             actions: read
 
         steps:
+            - name: Harden Runner
+              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              with:
+                  egress-policy: audit
+
             # DO NOT run actions/checkout here, for security reasons
             # For details, refer to https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
             - name: Post comment
-              uses: py-cov-action/python-coverage-comment-action@d1ff8fbb5ff80feedb3faa0f6d7b424f417ad0e1  # v3.30
+              uses: py-cov-action/python-coverage-comment-action@d1ff8fbb5ff80feedb3faa0f6d7b424f417ad0e1
               with:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITHUB_PR_RUN_ID: ${{ github.event.workflow_run.id }}
