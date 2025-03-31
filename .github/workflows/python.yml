@@ -38,13 +38,13 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: ${{ matrix.python-version }}
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
+              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
 
             - name: Install module and dependencies
               run: |
@@ -93,13 +93,13 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
+              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
 
             - name: Install module and dependencies
               run: |
@@ -108,7 +108,7 @@ jobs:
             - id: cache-ruff
               uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
               with:
-                  path: ruff_cache
+                  path: .ruff_cache
                   key: ${{ runner.os }}-ruff-3.13-${{ github.run_id }}
 
             - name: Run ruff format
@@ -116,7 +116,7 @@ jobs:
               run: |
                   ruff format --diff .
 
-            - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8
+            - uses: thollander/actions-comment-pull-request@e4a76dd2b0a3c2027c3fd84147a67c22ee4c90fa
               if: failure() && steps.run-ruff.outcome == 'failure'
               with:
                   comment-tag: auto-fix-promo
@@ -133,6 +133,7 @@ jobs:
 
         permissions:
             pull-requests: write
+            security-events: write
 
         steps:
             - name: Harden Runner
@@ -143,13 +144,13 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
+              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
 
             - name: Install module and dependencies
               run: |
@@ -158,15 +159,25 @@ jobs:
             - id: cache-ruff
               uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
               with:
-                  path: ruff_cache
+                  path: .ruff_cache
                   key: ${{ runner.os }}-ruff-3.13-${{ github.run_id }}
+
+            - name: Generate SARIF file with ruff check
+              id: run-ruff-sarif
+              run: |
+                  ruff check --output-format=sarif -o results.sarif .
+
+            - name: Upload SARIF file to code scanning
+              uses: github/codeql-action/upload-sarif@1b549b9259bda1cb5ddde3b41741a82a2d15a841
+              with:
+                  sarif_file: results.sarif
 
             - name: Run ruff
               id: run-ruff
               run: |
                   ruff check --output-format=github .
 
-            - uses: thollander/actions-comment-pull-request@ddf65fcf3bc9d98bf0b8cde671a2214ffa7995f8
+            - uses: thollander/actions-comment-pull-request@e4a76dd2b0a3c2027c3fd84147a67c22ee4c90fa
               if: failure() && steps.run-ruff.outcome == 'failure'
               with:
                   comment-tag: auto-fix-promo
@@ -190,13 +201,13 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
+              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
 
             - name: Install module and dependencies
               run: |
@@ -213,13 +224,13 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
+              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
 
             - name: Install module and dependencies
               run: |
@@ -229,7 +240,7 @@ jobs:
               uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
               with:
                   path: .mypy_cache
-                  key: ${{ runner.os }}-mypy-${{ matrix.python-version }}
+                  key: ${{ runner.os }}-mypy-${{ github.run_id }}
 
             - name: Run mypy
               run: |
@@ -293,13 +304,13 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: 3.13
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@cdd7153ace885f698b54dcd2ae4ce134afa2ac05
+              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
 
             - name: Install module and dependencies
               run: |
@@ -342,7 +353,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: ${{ matrix.python-version }}
                   cache: pip
