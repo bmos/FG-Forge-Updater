@@ -38,7 +38,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: ${{ matrix.python-version }}
                   cache: pip
@@ -85,7 +85,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
@@ -136,7 +136,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
@@ -193,7 +193,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
@@ -216,7 +216,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: '3.13'
                   cache: pip
@@ -296,7 +296,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python 3.13
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: 3.13
                   cache: pip
@@ -345,7 +345,7 @@ jobs:
             - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+              uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55
               with:
                   python-version: ${{ matrix.python-version }}
                   cache: pip
