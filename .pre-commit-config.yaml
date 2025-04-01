@@ -30,13 +30,6 @@ repos:
           - id: bandit
             args: ['--confidence-level=high', '--severity-level=high', '-c', 'pyproject.toml']
             additional_dependencies: ['bandit[toml]']
-
-ci:
-    autoupdate_branch: 'pre-commit/update-hooks'
-    autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
-    autoupdate_schedule: weekly
-    skip: []
-    submodules: false
     - repo: https://github.com/gitleaks/gitleaks
       rev: v8.16.3
       hooks:
