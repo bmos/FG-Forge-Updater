@@ -30,7 +30,7 @@ dev = [
     "polyfactory==2.19.0",
     "pre-commit==4.2.0",
     "pytest-xdist==3.6.1",
-    "pytest==8.3.4",
+    "pytest==8.3.5",
     "ruff==0.11.2",
     "types-Markdown==3.7.0.20241204",
     "types-beautifulsoup4==4.12.0.20250204",
