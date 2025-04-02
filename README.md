@@ -1,7 +1,7 @@
 [![CodeQL](https://github.com/bmos/FG-Forge-Updater/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/bmos/FG-Forge-Updater/actions/workflows/github-code-scanning/codeql)
 [![Python checks](https://github.com/bmos/FG-Forge-Updater/actions/workflows/python.yml/badge.svg?branch=main)](https://github.com/bmos/FG-Forge-Updater/actions/workflows/python.yml)
 [![Coverage badge](https://raw.githubusercontent.com/bmos/FG-Forge-Updater/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/bmos/FG-Forge-Updater/blob/python-coverage-comment-action-data/htmlcov/index.html)
-
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/10361/badge)](https://www.bestpractices.dev/projects/10361)
 
 # Forge Updater
 
