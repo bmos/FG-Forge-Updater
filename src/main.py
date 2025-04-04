@@ -17,7 +17,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(
 
 TIMEOUT_SECONDS: float = 7
 CHROME_ARGS: list[str] = [
-    "--remote-debugging-port=9222",
     "--headless=new",
     "--window-size=1280,1024",
 ]
