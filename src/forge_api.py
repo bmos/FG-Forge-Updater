@@ -1,5 +1,6 @@
 """Provides classes for authenticating to and managing items on the FantasyGrounds Forge marketplace."""
 
+import importlib.metadata
 import logging
 import time
 from dataclasses import dataclass
@@ -169,7 +170,10 @@ class ForgeItem:
 
     def get_sales(self, session: requestium.Session, urls: ForgeURLs, limit_count: int = -1) -> list:
         """Retrieve a list of sales for this Forge item, filter it by item_id and return the filtered list."""
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        headers = {
+            "User-Agent": f"Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version('fg-forge-updater')}; +https://github.com/bmos/FG-Forge-Updater)",
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
         response = session.post(urls.API_SALES, data=f"draw=1&length={limit_count}", headers=headers)
         sales = response.json()["data"]
 
