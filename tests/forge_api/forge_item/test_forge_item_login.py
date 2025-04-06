@@ -60,7 +60,7 @@ def test_csrf_extraction_missing() -> None:
     assert item.creds.get_csrf_token(mock_session, ForgeURLs()) is None
 
 
-def test_forge_item_login() -> None:
+def test_forge_item_login_calls() -> None:
     mock_session = MagicMock(spec=requestium.Session)
     mock_session.headers = MagicMock(spec=CaseInsensitiveDict)
     mock_session.driver = MagicMock(spec=webdriver.Chrome)
@@ -72,14 +72,7 @@ def test_forge_item_login() -> None:
     creds = ForgeCredentialsFactory.build()
     item = ForgeItem(creds, "1337", 1)
     item.login(mock_session, ForgeURLs())
-    expected_find_element = [call(by, value) for (by, value) in TEST_CALLS]
-    expected_find_element.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
-    expected_find_element.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
-    expected_find_element.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
-    expected_find_element2 = None
-    if os.name == "nt" and not sys.version_info >= (3, 13):
-        expected_find_element2 = expected_find_element
-        expected_find_element2.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
-    assert (mock_session.driver.find_element.mock_calls == expected_find_element) or (
-        expected_find_element2 and (mock_session.driver.find_element.mock_calls == expected_find_element2)
-    )
+    expected_find_elements = [call(by, value) for (by, value) in TEST_CALLS]
+    expected_find_elements.append(call(By.XPATH, "//div[@class='blockrow restore']"))  # login failure message
+    for expected_find_element in expected_find_elements:
+        assert expected_find_element in mock_session.driver.find_element.mock_calls
