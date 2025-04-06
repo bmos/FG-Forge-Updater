@@ -1,5 +1,3 @@
-import os
-import sys
 from unittest.mock import MagicMock, call
 
 import requestium

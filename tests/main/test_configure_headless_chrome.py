@@ -18,6 +18,9 @@ def test_configure_headless_chrome() -> None:
     assert int(args["--window-size"][1]) > 800  # window size is at least 800 tall
 
     assert "--user-agent" in args
-    assert args["--user-agent"] == f"Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version("fg-forge-updater")}; +https://github.com/bmos/FG-Forge-Updater)"
+    assert (
+        args["--user-agent"]
+        == f"Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version('fg-forge-updater')}; +https://github.com/bmos/FG-Forge-Updater)"
+    )
     assert args["--user-agent"].__contains__("Mozilla/5.0 (compatible; FG-Forge-Updater")
     assert args["--user-agent"].__contains__("https://github.com/bmos/FG-Forge-Updater")
