@@ -205,7 +205,7 @@ jobs:
 
             - name: Run bandit scan
               run: |
-                  bandit --confidence-level=high --severity-level=high -c pyproject.toml -r .
+                  bandit --confidence-level=high --severity-level=high --configfile pyproject.toml -r .
 
     mypy:
         runs-on: ubuntu-latest
