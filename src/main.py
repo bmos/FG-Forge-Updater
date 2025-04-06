@@ -1,6 +1,7 @@
 """Automation to enable uploading a new fantasygrounds mod or ext file to the FG Forge and publishing it to the Live channel."""
 
 import getpass
+import importlib.metadata
 import logging
 import os
 from pathlib import Path, PurePath
@@ -19,7 +20,7 @@ TIMEOUT_SECONDS: float = 7
 CHROME_ARGS: list[str] = [
     "--headless=new",
     "--window-size=1280,1024",
-    "--no-sandbox",
+    f'--user-agent="Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version("fg-forge-updater")}; +https://github.com/bmos/FG-Forge-Updater)"',
 ]
 
 

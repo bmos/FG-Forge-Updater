@@ -14,3 +14,6 @@ def test_configure_headless_chrome() -> None:
     assert "--no-sandbox" in args
     assert int(args["--window-size"][0]) > 1024  # window size is at least 1024 wide
     assert int(args["--window-size"][1]) > 800  # window size is at least 800 tall
+    assert "--user-agent" in args
+    assert args["--user-agent"].__contains__("Mozilla/5.0 (compatible; FG-Forge-Updater")
+    assert args["--user-agent"].__contains__("https://github.com/bmos/FG-Forge-Updater")
