@@ -20,7 +20,7 @@ TIMEOUT_SECONDS: float = 7
 CHROME_ARGS: list[str] = [
     "--headless=new",
     "--window-size=1280,1024",
-    f'--user-agent="Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version("fg-forge-updater")}; +https://github.com/bmos/FG-Forge-Updater)"',
+    f'--user-agent=Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version("fg-forge-updater")}; +https://github.com/bmos/FG-Forge-Updater)',
 ]
 
 
