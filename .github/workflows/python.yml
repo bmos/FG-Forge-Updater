@@ -31,7 +31,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                   disable-sudo: true
                   egress-policy: block
@@ -50,7 +50,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
+              uses: install-pinned/uv@95e90cc576af729d90be7d0233d3452899eef976
 
             - name: Install module and dependencies
               run: |
@@ -92,7 +92,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                   disable-sudo: true
                   egress-policy: block
@@ -110,7 +110,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
+              uses: install-pinned/uv@95e90cc576af729d90be7d0233d3452899eef976
 
             - name: Install module and dependencies
               run: |
@@ -148,7 +148,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                   disable-sudo: true
                   egress-policy: block
@@ -167,7 +167,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
+              uses: install-pinned/uv@95e90cc576af729d90be7d0233d3452899eef976
 
             - name: Install module and dependencies
               run: |
@@ -211,7 +211,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                   disable-sudo: true
                   egress-policy: block
@@ -229,7 +229,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
+              uses: install-pinned/uv@95e90cc576af729d90be7d0233d3452899eef976
 
             - name: Install module and dependencies
               run: |
@@ -244,7 +244,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                   disable-sudo: true
                   egress-policy: block
@@ -262,7 +262,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
+              uses: install-pinned/uv@95e90cc576af729d90be7d0233d3452899eef976
 
             - name: Install module and dependencies
               run: |
@@ -290,7 +290,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                 disable-sudo: true
                 egress-policy: block
@@ -334,7 +334,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                   disable-sudo: true
                   egress-policy: block
@@ -353,7 +353,7 @@ jobs:
                   cache: pip
 
             - name: Install uv
-              uses: install-pinned/uv@e25c5f1ccd69605d5bec5e481e4065f274d5438d
+              uses: install-pinned/uv@95e90cc576af729d90be7d0233d3452899eef976
 
             - name: Install module and dependencies
               run: |
@@ -389,7 +389,7 @@ jobs:
 
         steps:
             - name: Harden runner
-              uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481
+              uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
               with:
                   egress-policy: audit
 
