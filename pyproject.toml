@@ -122,7 +122,7 @@ omit = [
 
 [tool.coverage.report]
 exclude_also = [
-    "logging.info",
+    "logger.",
 ]
 
 [tool.bandit]
