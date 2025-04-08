@@ -24,7 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "bandit[toml]==1.8.3",
+    "bandit[toml,sarif]==1.8.3",
     "mypy==1.15.0",
     "pandas-stubs==2.2.3.250308",
     "polyfactory==2.19.0",
@@ -94,6 +94,7 @@ ignore = [
     "D212",
 ]
 
+[tool.mypy]
 [[tool.mypy.overrides]]
 module = [
     "requestium",
@@ -121,11 +122,11 @@ omit = [
 
 [tool.coverage.report]
 exclude_also = [
-    "logging.info",
+    "logger.",
 ]
 
 [tool.bandit]
 exclude_dirs = [
-    "tests/",
-    ".venv/",
+    "./tests/",
+    "./.venv/",
 ]
