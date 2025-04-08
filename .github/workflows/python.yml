@@ -177,6 +177,9 @@ jobs:
     bandit:
         runs-on: ubuntu-latest
 
+        permissions:
+            security-events: write
+
         steps:
             - name: Harden runner
               uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf
@@ -205,7 +208,12 @@ jobs:
 
             - name: Run bandit scan
               run: |
-                  bandit --confidence-level=high --severity-level=high --configfile pyproject.toml --recursive .
+                  bandit --confidence-level=high --severity-level=high --configfile pyproject.toml --format sarif --outputfile results.sarif --recursive .
+
+            - name: Upload SARIF file to code scanning
+              uses: github/codeql-action/upload-sarif@1b549b9259bda1cb5ddde3b41741a82a2d15a841
+              with:
+                  sarif_file: results.sarif
 
     mypy:
         runs-on: ubuntu-latest
