@@ -94,6 +94,7 @@ ignore = [
     "D212",
 ]
 
+[tool.mypy]
 [[tool.mypy.overrides]]
 module = [
     "requestium",
