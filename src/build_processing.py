@@ -32,7 +32,7 @@ def replace_images_with_link(soup: BeautifulSoup, no_images: bool) -> BeautifulS
     return soup
 
 
-def readme_html(markdown_text: str, no_images: bool = False) -> str:
+def markdown_to_html(markdown_text: str, no_images: bool = False) -> str:
     """Return an html-formatted string from a string formatted as markdown."""
     markdown_text = re.sub(r"!\[]\(\..+?\)", "", markdown_text)
     markdown_text = mdformat.text(markdown_text)
@@ -43,14 +43,16 @@ def readme_html(markdown_text: str, no_images: bool = False) -> str:
     return str(soup)
 
 
-def get_readme(new_files: list[Path], no_images: bool = False, readme_name: str = "README.md") -> str:
+def get_markdown(new_files: list[Path], no_images: bool = False, readme_name: str = "README.md") -> str | None:
     """Read the first README.md found in the new zip files and call readme_html() returning the result."""
-    return next((readme_html(ZipFile(file).read(readme_name).decode("UTF-8"), no_images) for file in new_files if readme_name in ZipFile(file).namelist()), "")
+    return next(
+        (markdown_to_html(ZipFile(file).read(readme_name).decode("UTF-8"), no_images) for file in new_files if readme_name in ZipFile(file).namelist()), ""
+    )
 
 
 def get_build(file_path: PurePath, env_file: str) -> Path:
     """Combine PurePath and file name into a Path object, ensure that a file exists there, and return the Path."""
-    new_file = Path(file_path, env_file)
+    new_file = Path(file_path / env_file)
     logger.info("File upload path determined to be: %s", new_file)
     if not new_file.is_file():
         error_msg = f"File at {new_file!s} is not found."

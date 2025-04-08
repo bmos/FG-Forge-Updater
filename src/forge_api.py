@@ -168,36 +168,39 @@ class ForgeItem:
         check_report_upload_percentage(driver)
         logger.info("Build upload complete")
 
-    def get_sales(self, session: requestium.Session, urls: ForgeURLs, limit_count: int = -1) -> list:
+    def get_sales(self, session: requestium.Session, urls: ForgeURLs, limit_count: int = -1) -> list[dict[str, str | int | None]]:
         """Retrieve a list of sales for this Forge item, filter it by item_id and return the filtered list."""
+        self.login(session, urls)
+
         headers = {
             "User-Agent": f"Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version('fg-forge-updater')}; +https://github.com/bmos/FG-Forge-Updater)",
             "Content-Type": "application/x-www-form-urlencoded",
         }
         response = session.post(urls.API_SALES, data=f"draw=1&length={limit_count}", headers=headers)
+
         sales = response.json()["data"]
 
         def is_sale_type(sale: dict[str, str], sale_type: ForgeTransactionType) -> bool:
             return sale["item_id"] == self.item_id and sale["transaction_type_id"] == sale_type.value
 
-        sales = [sale for sale in sales if is_sale_type(sale, ForgeTransactionType.PURCHASE)]
-        logger.info("Found %s transactions with transaction type %s for Forge item %s", len(sales), ForgeTransactionType.PURCHASE, self.item_id)
+        filtered_sales = [sale for sale in sales if is_sale_type(sale, ForgeTransactionType.PURCHASE)]
+        logger.info("Found %s transactions with transaction type %s for Forge item %s", len(filtered_sales), ForgeTransactionType.PURCHASE, self.item_id)
 
-        return sales
+        return list(filtered_sales)
 
-    def get_item_builds(self, session: requestium.Session, urls: ForgeURLs) -> dict:
+    def get_item_builds(self, session: requestium.Session, urls: ForgeURLs) -> list[dict[str, int]]:
         """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
         response = session.post(
             f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table",
         )
-        return response.json()["data"]
+        return list(response.json()["data"])
 
-    def set_build_channel(self, session: requestium.Session, urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
+    def set_build_channel(self, session: requestium.Session, urls: ForgeURLs, build_id: int, channel: ForgeReleaseChannel) -> bool:
         """Set the build channel of this Forge item to the specified value, returning True on 200 OK."""
         response = session.post(
             f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}",
         )
-        return response.status_code == 200
+        return bool(response.status_code == 200)
 
     def replace_description(self, driver: WebDriver, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""
