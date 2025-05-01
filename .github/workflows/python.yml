@@ -68,6 +68,14 @@ jobs:
                   pytest
               env:
                   COVERAGE_FILE: .coverage.${{ runner.os }}.${{ matrix.python-version }}
+                  FG_RELEASE_CHANNEL: Live
+                  FG_ITEM_ID: ${{ vars.FORGE_ITEM_ID }}
+                  FG_USER_NAME: ${{ vars.FORGE_USER_NAME }}
+                  FG_USER_PASS: ${{ secrets.FORGE_USER_PASS }}
+                  FG_UL_FILE: markdown${{ env.EXTENSION }}
+                  FG_README_UPDATE: "TRUE"
+                  FG_UPLOAD_BUILD: "TRUE"
+                  FG_GRAPH_SALES: "TRUE"
 
             - name: Store coverage file
               uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -118,6 +126,18 @@ jobs:
               id: run-ruff
               run: |
                   ruff format --diff .
+
+            - uses: thollander/actions-comment-pull-request@e4a76dd2b0a3c2027c3fd84147a67c22ee4c90fa
+              if: failure() && steps.run-ruff.outcome == 'failure'
+              with:
+                  comment-tag: auto-fix-promo
+                  message: >
+                      ### Ruff
+
+                      Ruff has found at least one issue.
+
+                      Comment `#ruff auto fix` or `#ruff unsafe auto fix` to
+                      have available fixes automatically applied.
 
     ruff-check:
         runs-on: ubuntu-latest
@@ -175,6 +195,18 @@ jobs:
               if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-ruff-sarif.outcome)
               run: |
                   ruff check --output-format=github .
+
+            - uses: thollander/actions-comment-pull-request@e4a76dd2b0a3c2027c3fd84147a67c22ee4c90fa
+              if: failure() && steps.run-ruff.outcome == 'failure'
+              with:
+                  comment-tag: auto-fix-promo
+                  message: >
+                      ### Ruff
+
+                      Ruff has found at least one issue.
+
+                      Comment `#ruff auto fix` or `#ruff unsafe auto fix` to
+                      have available fixes automatically applied.
 
     bandit:
         runs-on: ubuntu-latest
