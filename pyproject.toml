@@ -9,7 +9,7 @@ authors = [
 ]
 urls = { Repository = "https://github.com/bmos/fg_forge_updater" }
 dependencies = [
-    "beautifulsoup4==4.13.3",
+    "beautifulsoup4==4.13.4",
     "markdown==3.7",
     "matplotlib==3.10.1",
     "mdformat-footnote==0.1.1",
