@@ -25,7 +25,10 @@ logger = logging.getLogger(__name__)
 class ForgeLoginException(BaseException):
     """Exception to be raised when forge login is unsuccessful."""
 
-    pass
+    def __init__(self, username: str) -> None:
+        """Create error message including what user you were trying to login as."""
+        self.message = f"Attempted login as {username} was unsuccessful"
+        super().__init__(self.message)
 
 
 class ForgeTransactionType(Enum):
@@ -105,8 +108,7 @@ class ForgeItem:
 
             try:
                 WebDriverWait(session.driver, self.timeout).until(ec.presence_of_element_located((By.XPATH, "//div[@class='blockrow restore']")))
-                error_msg = f"Attempted login as {self.creds.username} was unsuccessful"
-                raise ForgeLoginException(error_msg)
+                raise ForgeLoginException(self.creds.username)
             except TimeoutException:
                 logger.info("Logged in as %s", self.creds.username)
                 session.transfer_driver_cookies_to_session(copy_user_agent=True)
