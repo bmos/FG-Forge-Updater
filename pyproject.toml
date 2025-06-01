@@ -29,7 +29,7 @@ dev = [
     "pandas-stubs==2.2.3.250308",
     "polyfactory==2.21.0",
     "pre-commit==4.2.0",
-    "pytest-xdist==3.6.1",
+    "pytest-xdist==3.7.0",
     "pytest==8.3.5",
     "ruff==0.11.12",
     "types-Markdown==3.8.0.20250415",
