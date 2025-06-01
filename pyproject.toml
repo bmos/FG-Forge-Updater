@@ -34,7 +34,7 @@ dev = [
     "ruff==0.11.7",
     "types-Markdown==3.8.0.20250415",
     "types-beautifulsoup4==4.12.0.20250204",
-    "types-requests==2.32.0.20250328",
+    "types-requests==2.32.0.20250515",
     "types-seaborn==0.13.2.20250111",
 ]
 github-actions = [
