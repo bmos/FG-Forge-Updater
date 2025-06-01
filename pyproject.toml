@@ -35,7 +35,7 @@ dev = [
     "types-Markdown==3.8.0.20250415",
     "types-beautifulsoup4==4.12.0.20250516",
     "types-requests==2.32.0.20250515",
-    "types-seaborn==0.13.2.20250111",
+    "types-seaborn==0.13.2.20250516",
 ]
 github-actions = [
     "coverage==7.8.2",
