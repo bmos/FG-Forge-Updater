@@ -27,7 +27,7 @@ dev = [
     "bandit[toml,sarif]==1.8.3",
     "mypy==1.16.0",
     "pandas-stubs==2.2.3.250527",
-    "polyfactory==2.21.0",
+    "polyfactory==2.22.1",
     "pre-commit==4.2.0",
     "pytest-xdist==3.7.0",
     "pytest==8.4.1",
