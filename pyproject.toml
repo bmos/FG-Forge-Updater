@@ -32,7 +32,7 @@ dev = [
     "pytest-xdist==3.7.0",
     "pytest==8.4.1",
     "ruff==0.11.12",
-    "types-Markdown==3.8.0.20250415",
+    "types-Markdown==3.8.0.20250708",
     "types-beautifulsoup4==4.12.0.20250516",
     "types-requests==2.32.4.20250611",
     "types-seaborn==0.13.2.20250516",
