@@ -39,7 +39,7 @@ dev = [
 ]
 github-actions = [
     "coverage==7.10.7",
-    "pytest-cov==6.2.1",
+    "pytest-cov==7.0.0",
 ]
 
 [tool.ruff]
