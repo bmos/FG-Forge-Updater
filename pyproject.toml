@@ -22,7 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "bandit[toml,sarif]==1.8.3",
+    "bandit[sarif]==1.8.6",
     "mypy==1.17.1",
     "pandas-stubs==2.3.2.250926",
     "polyfactory==2.22.1",
@@ -121,10 +121,4 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "logger.",
-]
-
-[tool.bandit]
-exclude_dirs = [
-    "./tests/",
-    "./.venv/",
 ]

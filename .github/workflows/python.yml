@@ -209,14 +209,19 @@ jobs:
               run: |
                   uv pip install --system -e .[dev]
 
-            - name: Run bandit scan
+            - id: run-bandit-sarif
               run: |
-                  bandit --confidence-level=high --severity-level=high --configfile 'pyproject.toml' --format sarif --output results.sarif --recursive .
+                  bandit --confidence-level 'medium' --severity-level 'medium' --recursive 'src' --format 'sarif' --output 'results.sarif'
 
-            - name: Upload SARIF file to code scanning
-              uses: github/codeql-action/upload-sarif@3599b3baa15b485a2e49ef411a7a4bb2452e7f93
+            - uses: github/codeql-action/upload-sarif@0499de31b99561a6d14a36a5f662c2a54f91beee
+              if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-bandit-sarif.outcome)
               with:
                   sarif_file: results.sarif
+
+            - id: run-bandit
+              if: failure() && contains('["failure"]', steps.run-bandit-sarif.outcome)
+              run: |
+                  bandit --confidence-level 'medium' --severity-level 'medium' --recursive 'src'
 
     mypy:
         runs-on: ubuntu-latest
