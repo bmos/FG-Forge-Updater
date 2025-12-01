@@ -9,7 +9,7 @@ urls = { Repository = "https://github.com/bmos/fg_forge_updater" }
 dependencies = [
     "beautifulsoup4==4.14.2",
     "markdown==3.10",
-    "matplotlib==3.10.6",
+    "matplotlib==3.10.7",
     "mdformat-footnote==0.1.2",
     "mdformat-frontmatter==2.0.8",
     "mdformat-gfm==1.0.0",
