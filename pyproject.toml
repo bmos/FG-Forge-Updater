@@ -28,7 +28,7 @@ dev = [
     "polyfactory==3.1.0",
     "pre-commit==4.4.0",
     "pytest-xdist==3.8.0",
-    "pytest==9.0.0",
+    "pytest==9.0.1",
     "ruff==0.14.4",
     "types-Markdown==3.9.0.20250906",
     "types-beautifulsoup4==4.12.0.20250516",
