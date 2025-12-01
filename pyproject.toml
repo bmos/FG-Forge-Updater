@@ -7,7 +7,7 @@ license = { file = "LICENSE" }
 authors = [{ name = "Ramona T", email = "ramona.t.me@pm.me" }]
 urls = { Repository = "https://github.com/bmos/fg_forge_updater" }
 dependencies = [
-    "beautifulsoup4==4.14.2",
+    "beautifulsoup4==4.14.3",
     "markdown==3.10",
     "matplotlib==3.10.7",
     "mdformat-footnote==0.1.2",
