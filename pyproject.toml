@@ -130,3 +130,11 @@ exclude_also = [
     'if __name__ == "__main__":',
     "main\\(\\)",
 ]
+
+[tool.mypy]
+
+[[tool.mypy.overrides]]
+module = [
+    "requestium",
+]
+ignore_missing_imports = true
