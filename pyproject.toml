@@ -13,7 +13,7 @@ dependencies = [
     "mdformat-footnote==0.1.2",
     "mdformat-frontmatter==2.0.8",
     "mdformat-gfm==1.0.0",
-    "pandas==2.3.2",
+    "pandas==2.3.3",
     "python-dotenv==1.1.1",
     "requestium==0.4.0",
     "seaborn==0.13.2",
