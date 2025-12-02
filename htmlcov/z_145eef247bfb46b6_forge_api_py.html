@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_145eef247bfb46b6_main_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.12.0">coverage.py v7.12.0</a>,
-            created at 2025-12-02 05:47 +0000
+            created at 2025-12-02 15:42 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -120,12 +120,12 @@
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="nam">TREASURE_CHEST</span> <span class="op">=</span> <span class="str">"1"</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">    <span class="nam">PURCHASE</span> <span class="op">=</span> <span class="str">"2"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="com"># TODO: What is #3?</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">    <span class="com"># TODO: What is #4?</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">    <span class="com"># TODO(bmos): What is #3?</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">    <span class="com"># TODO(bmos): What is #4?</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">    <span class="nam">GIFT</span> <span class="op">=</span> <span class="str">"5"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">    <span class="com"># TODO: What is #6?</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">    <span class="com"># TODO(bmos): What is #6?</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">    <span class="nam">OWNER</span> <span class="op">=</span> <span class="str">"7"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="com"># TODO: What is #8?</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">    <span class="com"># TODO(bmos): What is #8?</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="nam">DONOR</span> <span class="op">=</span> <span class="str">"9"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -283,7 +283,7 @@
     <p class="mis show_mis"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">        <span class="nam">response</span> <span class="op">=</span> <span class="nam">session</span><span class="op">.</span><span class="nam">post</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">            <span class="fst">f"</span><span class="op">{</span><span class="nam">urls</span><span class="op">.</span><span class="nam">API_CRAFTER_ITEMS</span><span class="op">}</span><span class="fst">/</span><span class="op">{</span><span class="nam">self</span><span class="op">.</span><span class="nam">item_id</span><span class="op">}</span><span class="fst">/builds/</span><span class="op">{</span><span class="nam">build_id</span><span class="op">}</span><span class="fst">/channels/</span><span class="op">{</span><span class="nam">channel</span><span class="op">.</span><span class="nam">value</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">        <span class="key">return</span> <span class="nam">response</span><span class="op">.</span><span class="nam">status_code</span> <span class="op">==</span> <span class="num">200</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">        <span class="key">return</span> <span class="nam">response</span><span class="op">.</span><span class="nam">status_code</span> <span class="op">==</span> <span class="num">200</span>  <span class="com"># noqa: PLR2004</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">    <span class="key">def</span> <span class="nam">replace_description</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">driver</span><span class="op">:</span> <span class="nam">WebDriver</span><span class="op">,</span> <span class="nam">description_text</span><span class="op">:</span> <span class="nam">str</span><span class="op">)</span> <span class="op">-></span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t">        <span class="str">"""Replace the existing item description with a new HTML-formatted full description."""</span>&nbsp;</span><span class="r"></span></p>
@@ -319,7 +319,7 @@
             <a class="nav" href="z_145eef247bfb46b6_main_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.12.0">coverage.py v7.12.0</a>,
-            created at 2025-12-02 05:47 +0000
+            created at 2025-12-02 15:42 +0000
         </p>
     </div>
 </footer>
