@@ -16,19 +16,13 @@ logger = logging.getLogger(__name__)
 class ToastErrorException(BaseException):
     """Exception to be raised when toast error messages are shown."""
 
-    pass
-
 
 class DropzoneException(BaseException):
     """Exception to be raised when dropzone error messages are shown."""
 
-    pass
-
 
 class LongUploadException(BaseException):
     """Exception to be raised when file uploads time out."""
-
-    pass
 
 
 def check_report_toast_error(driver: WebDriver, timeout_seconds: float = 7) -> None:

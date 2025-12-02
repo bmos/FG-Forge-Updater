@@ -36,12 +36,12 @@ class ForgeTransactionType(Enum):
 
     TREASURE_CHEST = "1"
     PURCHASE = "2"
-    # TODO: What is #3?
-    # TODO: What is #4?
+    # TODO(bmos): What is #3?
+    # TODO(bmos): What is #4?
     GIFT = "5"
-    # TODO: What is #6?
+    # TODO(bmos): What is #6?
     OWNER = "7"
-    # TODO: What is #8?
+    # TODO(bmos): What is #8?
     DONOR = "9"
 
 
@@ -199,7 +199,7 @@ class ForgeItem:
         response = session.post(
             f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}",
         )
-        return response.status_code == 200
+        return response.status_code == 200  # noqa: PLR2004
 
     def replace_description(self, driver: WebDriver, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""

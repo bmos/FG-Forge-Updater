@@ -10,7 +10,7 @@ import requestium
 from dotenv import load_dotenv
 from selenium import webdriver
 
-import src.build_processing as build_processing
+from src import build_processing
 from src.forge_api import ForgeCredentials, ForgeItem, ForgeReleaseChannel, ForgeURLs
 from src.users_graph import graph_users
 
@@ -57,7 +57,7 @@ def main() -> None:
             channel = ForgeReleaseChannel[os.environ.get("FG_RELEASE_CHANNEL", "LIVE").upper()]
             item.upload_and_publish(s, urls, new_files, channel)
         if os.environ.get("FG_README_UPDATE", "FALSE") == "TRUE":
-            readme_text = build_processing.get_readme(new_files, os.environ.get("FG_README_NO_IMAGES", "FALSE") == "TRUE")
+            readme_text = build_processing.get_readme(new_files, no_images=os.environ.get("FG_README_NO_IMAGES", "FALSE") == "TRUE")
             item.update_description(s, urls, readme_text)
 
 

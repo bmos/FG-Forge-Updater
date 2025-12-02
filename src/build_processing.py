@@ -22,7 +22,7 @@ def apply_styles_to_table(soup: BeautifulSoup) -> BeautifulSoup:
     return soup
 
 
-def replace_images_with_link(soup: BeautifulSoup, no_images: bool) -> BeautifulSoup:
+def replace_images_with_link(soup: BeautifulSoup, *, no_images: bool) -> BeautifulSoup:
     """Replace all images with boilerplate text."""
     for img in soup.find_all("img"):
         link_url = img.parent.get("href") if img.parent.get("href") else img.get("src")
@@ -32,20 +32,22 @@ def replace_images_with_link(soup: BeautifulSoup, no_images: bool) -> BeautifulS
     return soup
 
 
-def readme_html(markdown_text: str, no_images: bool = False) -> str:
+def readme_html(markdown_text: str, *, no_images: bool = False) -> str:
     """Return an html-formatted string from a string formatted as markdown."""
     markdown_text = re.sub(r"!\[]\(\..+?\)", "", markdown_text)
     markdown_text = mdformat.text(markdown_text)
     html = markdown(markdown_text, extensions=["extra", "nl2br", "smarty"])
     soup = BeautifulSoup(html, "html.parser")
-    soup = replace_images_with_link(soup, no_images)
+    soup = replace_images_with_link(soup, no_images=no_images)
     soup = apply_styles_to_table(soup)
     return str(soup)
 
 
-def get_readme(new_files: list[Path], no_images: bool = False, readme_name: str = "README.md") -> str:
+def get_readme(new_files: list[Path], *, no_images: bool = False, readme_name: str = "README.md") -> str:
     """Read the first README.md found in the new zip files and call readme_html() returning the result."""
-    return next((readme_html(ZipFile(file).read(readme_name).decode("UTF-8"), no_images) for file in new_files if readme_name in ZipFile(file).namelist()), "")
+    return next(
+        (readme_html(ZipFile(file).read(readme_name).decode("UTF-8"), no_images=no_images) for file in new_files if readme_name in ZipFile(file).namelist()), ""
+    )
 
 
 def get_build(file_path: PurePath, env_file: str) -> Path:
