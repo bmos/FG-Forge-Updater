@@ -265,6 +265,8 @@ jobs:
             github.com:443
             img.shields.io:443
 
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
       - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           pattern: coverage-*
