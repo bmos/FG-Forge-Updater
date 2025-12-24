@@ -1,6 +1,6 @@
 [project]
 name = "fg-forge-updater"
-version = "1.4.0"
+version = "2.0.0"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
@@ -14,8 +14,9 @@ dependencies = [
     "mdformat-frontmatter==2.0.8",
     "mdformat-gfm==1.0.0",
     "pandas==2.3.3",
+    "patchright>=1.56.0",
     "python-dotenv==1.2.1",
-    "requestium @ git+https://github.com/tryolabs/requestium.git@38f5b174727795d6d3ee3f6f4508a152ff5fd0ff", #  0.5.0 (unreleased)
+    "requests>=2.32.5",
     "seaborn==0.13.2",
     "selenium==4.38.0",
 ]
