@@ -6,13 +6,17 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
-from patchright.sync_api import BrowserContext, ElementHandle, Page
+from patchright.sync_api import BrowserContext, Page
 from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+if TYPE_CHECKING:
+    from patchright.sync_api import ElementHandle
+
 
 logger = logging.getLogger(__name__)
 HTTP_OK = 200
