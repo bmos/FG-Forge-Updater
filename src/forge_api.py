@@ -74,9 +74,11 @@ class ForgeCredentials:
     @staticmethod
     def get_csrf_token(session: requestium.Session, urls: ForgeURLs) -> str | None:
         """Retrieve the csrf token from the page header. Return None if not found."""
-        response = session.get(
-            urls.MANAGE_CRAFT,
-        )
+        response = session.get(urls.MANAGE_CRAFT)
+        if not response or not response.content:
+            logger.error("Empty response when fetching CSRF token")
+            return None
+            
         soup = BeautifulSoup(response.content, "html.parser")
         token_element = soup.find(attrs={"name": "csrf-token"})
         if not token_element or isinstance(token_element, NavigableString):
