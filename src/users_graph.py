@@ -15,7 +15,7 @@ with tempfile.NamedTemporaryFile(delete=False, suffix=".ttf") as tmp_font:
     rcParams["font.family"] = "Lexend"
 
 
-def graph_users(sales: list[dict[str, (str | int | None)]]) -> None:
+def graph_users(sales: list[dict[str, str | int | None]]) -> None:
     sales_df = pd.DataFrame(sales)
     sales_df["created_at"] = pd.to_datetime(sales_df["created_at"])
     sales_df.set_index("created_at", inplace=True)
