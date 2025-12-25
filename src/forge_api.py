@@ -35,16 +35,6 @@ class ForgeUploadException(BaseException):
     """Exception to be raised when file upload fails."""
 
 
-class ForgeTransactionType(Enum):
-    """Constants representing the strings used to represent each type of transaction for a Forge item."""
-
-    TREASURE_CHEST = "1"
-    PURCHASE = "2"
-    GIFT = "5"
-    OWNER = "7"
-    DONOR = "9"
-
-
 class ForgeReleaseChannel(Enum):
     """Constants representing the strings used to represent each release channel in build-management comboboxes."""
 
@@ -161,8 +151,9 @@ class ForgeItem:
         if channel is ForgeReleaseChannel.NONE:
             logger.info("Target channel is set to none, not setting new build to a release channel.")
             return
-        latest_build_id = max(self.get_item_builds(headers, urls), key=lambda build: int(build["build_num"]))["id"]
+
         logger.info("Assigning new build to Forge channel: %s: %s", channel, channel.value)
+        latest_build_id = max(self.get_item_builds(headers, urls), key=lambda build: int(build["build_num"]))["id"]
         self.set_build_channel(headers, urls, latest_build_id, channel)
 
     def upload_build_direct(self, headers: dict[str, str], urls: ForgeURLs, new_builds: list[Path]) -> None:
@@ -194,24 +185,7 @@ class ForgeItem:
 
         logger.info("Build upload complete for all files")
 
-    def get_sales(self, headers: dict[str, str], urls: ForgeURLs, limit_count: int = -1) -> list:
-        """Retrieve a list of sales for this Forge item, filter it by item_id and return the filtered list."""
-        request_headers = {
-            **headers,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
-        response = requests.post(urls.API_SALES, data=f"draw=1&length={limit_count}", headers=request_headers)
-        sales = response.json()["data"]
-
-        def is_sale_type(sale: dict[str, str], sale_type: ForgeTransactionType) -> bool:
-            return sale["item_id"] == self.item_id and sale["transaction_type_id"] == sale_type.value
-
-        sales = [sale for sale in sales if is_sale_type(sale, ForgeTransactionType.PURCHASE)]
-        logger.info("Found %s transactions with transaction type %s for Forge item %s", len(sales), ForgeTransactionType.PURCHASE, self.item_id)
-
-        return sales
-
-    def get_item_builds(self, headers: dict[str, str], urls: ForgeURLs) -> dict:
+    def get_item_builds(self, headers: dict[str, str], urls: ForgeURLs) -> list[dict[str, str]]:
         """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
         response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table", headers=headers)
         return response.json()["data"]

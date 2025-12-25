@@ -11,7 +11,6 @@ from patchright.sync_api import ViewportSize, sync_playwright
 
 from src import build_processing
 from src.forge_api import ForgeCredentials, ForgeItem, ForgeReleaseChannel, ForgeURLs
-from src.users_graph import graph_users
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
 
@@ -53,9 +52,6 @@ def main() -> None:
 
         try:
             headers = item.login(page, context, urls)
-
-            if os.environ.get("FG_GRAPH_SALES", "FALSE") == "TRUE":
-                graph_users(item.get_sales(headers, urls))
 
             if os.environ.get("FG_UPLOAD_BUILD", "TRUE") == "TRUE":
                 channel = ForgeReleaseChannel[os.environ.get("FG_RELEASE_CHANNEL", "LIVE").upper()]
