@@ -1,6 +1,5 @@
 """Provides classes for authenticating to and managing items on the FantasyGrounds Forge marketplace."""
 
-import importlib.metadata
 import logging
 import time
 from dataclasses import dataclass
@@ -11,15 +10,16 @@ from typing import TYPE_CHECKING, cast
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
-from patchright.sync_api import BrowserContext, Page
+from patchright.sync_api import BrowserContext, Cookie, Page
 from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+from .shared_constants import HTTP_OK, get_user_agent
 
 if TYPE_CHECKING:
     from patchright.sync_api import ElementHandle
 
 
 logger = logging.getLogger(__name__)
-HTTP_OK = 200
 
 
 class ForgeLoginException(BaseException):
@@ -83,6 +83,26 @@ class ForgeCredentials:
         return str(token_element.get("content"))
 
 
+def _build_headers(cookies: list[Cookie], csrf_token: str) -> dict[str, str]:
+    """Build request headers with cookies and CSRF token."""
+    cookie_header = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+    return {
+        "Cookie": cookie_header,
+        "X-CSRF-TOKEN": csrf_token,
+        "User-Agent": get_user_agent(),
+    }
+
+
+def _wait_for_element(page: Page, selector: str, timeout: float, element_description: str | None = None) -> "ElementHandle":
+    """Wait for an element and raise descriptive error if not found."""
+    element = page.wait_for_selector(selector, timeout=timeout * 1000)
+    if not element:
+        description = element_description or selector
+        error_msg = f"{description} not found"
+        raise PlaywrightTimeoutError(error_msg)
+    return cast("ElementHandle", element)
+
+
 @dataclass(frozen=True)
 class ForgeItem:
     """Dataclass used to interact with an item on the FG Forge."""
@@ -91,19 +111,25 @@ class ForgeItem:
     item_id: str
     timeout: float
 
+    def _get_auth_headers(self, context: BrowserContext, urls: ForgeURLs) -> dict[str, str]:
+        """Get authentication headers with cookies and CSRF token."""
+        cookies = context.cookies()
+        csrf_token = self.creds.get_csrf_token(context, urls)
+        return _build_headers(cookies, csrf_token)
+
     def login(self, page: Page, context: BrowserContext, urls: ForgeURLs) -> dict[str, str]:
         """Open manage-craft and login if prompted. Returns headers dict with cookies and CSRF token."""
         page.goto(urls.FORGE_LOGIN)
 
         try:
-            username_field = cast("ElementHandle", page.wait_for_selector("input[name='vb_login_username']", timeout=self.timeout * 1000))
-            password_field = cast("ElementHandle", page.wait_for_selector("input[name='vb_login_password']", timeout=self.timeout * 1000))
+            username_field = _wait_for_element(page, "input[name='vb_login_username']", self.timeout, "Username field")
+            password_field = _wait_for_element(page, "input[name='vb_login_password']", self.timeout, "Password field")
 
             time.sleep(0.25)
             username_field.fill(self.creds.username)
             password_field.fill(self.creds.password)
 
-            login_button = cast("ElementHandle", page.wait_for_selector("//a[@class='registerbtn']", timeout=self.timeout * 1000))
+            login_button = _wait_for_element(page, "//a[@class='registerbtn']", self.timeout, "Login button")
             login_button.click()
             time.sleep(0.25)
 
@@ -112,33 +138,13 @@ class ForgeItem:
                 raise ForgeLoginException(self.creds.username)
             except PlaywrightTimeoutError:
                 logger.info("Logged in as %s", self.creds.username)
-
-                # Get cookies and prepare headers
-                cookies = context.cookies()
-                cookie_header = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-                csrf_token = self.creds.get_csrf_token(context, urls)
-
-                return {
-                    "Cookie": cookie_header,
-                    "X-CSRF-TOKEN": csrf_token,
-                    "User-Agent": f"Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version('fg-forge-updater')}; +https://github.com/bmos/FG-Forge-Updater)",
-                }
+                return self._get_auth_headers(context, urls)
 
         except PlaywrightTimeoutError:
             try:
                 page.wait_for_selector("select[name='items-table_length']", timeout=self.timeout * 1000)
                 logger.info("Already logged in")
-
-                # Still need to get cookies and headers
-                cookies = context.cookies()
-                cookie_header = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
-                csrf_token = self.creds.get_csrf_token(context, urls)
-
-                return {
-                    "Cookie": cookie_header,
-                    "X-CSRF-TOKEN": csrf_token,
-                    "User-Agent": f"Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version('fg-forge-updater')}; +https://github.com/bmos/FG-Forge-Updater)",
-                }
+                return self._get_auth_headers(context, urls)
             except PlaywrightTimeoutError as e:
                 error_msg = "No username or password field found, or login button is not clickable."
                 raise PlaywrightTimeoutError(error_msg) from e
@@ -160,14 +166,11 @@ class ForgeItem:
         """Upload new build(s) to this Forge item via direct API call."""
         upload_url = f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/upload"
 
-        # Build the files dict with all files at once, matching browser behavior
         files = {}
         for idx, build in enumerate(new_builds):
             file_bytes = build.read_bytes()
             files[f"buildFiles[{idx}]"] = (build.name, file_bytes, "application/octet-stream")
 
-        # Remove Content-Type from headers to let requests set it with boundary
-        # Add browser-specific headers that the API expects
         upload_headers = {k: v for k, v in headers.items() if k != "Content-Type"}
         upload_headers.update(
             {
@@ -177,7 +180,7 @@ class ForgeItem:
             }
         )
 
-        response = requests.post(upload_url, files=files, headers=upload_headers)
+        response = requests.post(upload_url, files=files, headers=upload_headers, timeout=30)
 
         if response.text or response.status_code != HTTP_OK:
             error_msg = f"Build upload failed with status {response.status_code}: {response.text}"
@@ -187,27 +190,22 @@ class ForgeItem:
 
     def get_item_builds(self, headers: dict[str, str], urls: ForgeURLs) -> list[dict[str, str]]:
         """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
-        response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table", headers=headers)
+        response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table", headers=headers, timeout=30)
         return response.json()["data"]
 
     def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
         """Set the build channel of this Forge item to the specified value, returning True on 200 OK."""
-        response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}", headers=headers)
+        response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}", headers=headers, timeout=30)
         return response.status_code == HTTP_OK
 
     def replace_description(self, page: Page, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""
         page.evaluate("window.scrollTo(0, document.body.scrollTop)")
-        uploads_tab = page.wait_for_selector("//a[@id='manage-item-tab']", timeout=self.timeout * 1000)
-        if not uploads_tab:
-            error_msg = "//a[@id='manage-item-tab'] not found"
-            raise PlaywrightTimeoutError(error_msg)
+
+        uploads_tab = _wait_for_element(page, "//a[@id='manage-item-tab']", self.timeout, "Manage item tab")
         uploads_tab.click()
 
-        submit_button = page.wait_for_selector("#save-item-button", timeout=self.timeout * 1000)
-        if not submit_button:
-            error_msg = "#save-item-button not found"
-            raise PlaywrightTimeoutError(error_msg)
+        submit_button = _wait_for_element(page, "#save-item-button", self.timeout, "Save item button")
 
         description_field = page.locator("//div[@id='manage-item']").locator(".note-editable").first
         description_field.evaluate("el => el.innerHTML = ''")
@@ -224,12 +222,10 @@ class ForgeItem:
         """Coordinates sequential use of other class methods to update the item description for an item on the FG Forge."""
         self.login(page, context, urls)
         logger.info("Updating Forge item description")
-        # Note: Still need to navigate to the page for description updates
+
         page.goto(urls.MANAGE_CRAFT)
         page.wait_for_selector("select[name='items-table_length']", timeout=self.timeout * 1000)
-        item_link = page.wait_for_selector(f"//a[@data-item-id='{self.item_id}']", timeout=self.timeout * 1000)
-        if not item_link:
-            error_msg = "//a[@data-item-id='{self.item_id}'] not found"
-            raise PlaywrightTimeoutError(error_msg)
+
+        item_link = _wait_for_element(page, f"//a[@data-item-id='{self.item_id}']", self.timeout, f"Item link for item ID {self.item_id}")
         item_link.click()
         self.replace_description(page, description)
