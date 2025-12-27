@@ -28,7 +28,7 @@ class BuildInfo(TypedDict):
     upload_date: str
     channel: str
 
-class ForgeLoginException(BaseException):
+class ForgeLoginException(Exception):
     """Exception to be raised when forge login is unsuccessful."""
 
     def __init__(self, username: str) -> None:
@@ -37,7 +37,7 @@ class ForgeLoginException(BaseException):
         super().__init__(self.message)
 
 
-class ForgeUploadException(BaseException):
+class ForgeUploadException(Exception):
     """Exception to be raised when file upload fails."""
 
 
