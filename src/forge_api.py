@@ -8,8 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import requests
-from bs4 import BeautifulSoup
-from bs4.element import NavigableString
+from bs4 import BeautifulSoup, Tag
 from patchright.sync_api import BrowserContext, Cookie, Page
 from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
 
@@ -77,10 +76,16 @@ class ForgeCredentials:
 
         soup = BeautifulSoup(content, "html.parser")
         token_element = soup.find(attrs={"name": "csrf-token"})
-        if not token_element or isinstance(token_element, NavigableString):
+        if not isinstance(token_element, Tag):
             error_msg = "CSRF token html element not found or invalid"
             raise ForgeLoginException(error_msg)
-        return str(token_element.get("content"))
+
+        content = str(token_element.get("content"))
+        if not content:
+            error_msg = "CSRF token content attribute is empty"
+            raise ForgeLoginException(error_msg)
+
+        return content
 
 
 def _build_headers(cookies: list[Cookie], csrf_token: str) -> dict[str, str]:
