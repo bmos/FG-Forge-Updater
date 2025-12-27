@@ -5,7 +5,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, TypedDict
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -20,6 +20,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
+class BuildInfo(TypedDict):
+    """Dictionary of string-formated information about a single Forge Build"""
+    id: str
+    build_num: str
+    upload_date: str
+    channel: str
 
 class ForgeLoginException(BaseException):
     """Exception to be raised when forge login is unsuccessful."""
@@ -214,7 +221,7 @@ class ForgeItem:
 
         logger.info("Build upload complete for all files")
 
-    def get_item_builds(self, headers: dict[str, str], urls: ForgeURLs) -> list[dict[str, str]]:
+    def get_item_builds(self, headers: dict[str, str], urls: ForgeURLs) -> list[BuildInfo]:
         """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
         response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table", headers=headers, timeout=30)
         return response.json()["data"]
