@@ -15,6 +15,12 @@ from src.shared_constants import TIMEOUT_SECONDS, get_user_agent
 logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
 
 
+def get_bool_env(key: str, *, default: bool = False) -> bool:
+    """Parse boolean from environment variable."""
+    value = os.environ.get(key, str(default).upper())
+    return value.upper() in ("TRUE", "1", "YES", "ON")
+
+
 def construct_objects() -> tuple[list[Path], ForgeItem, ForgeURLs]:
     """Construct necessary objects from environment variables or user input."""
     file_names = os.environ.get("FG_UL_FILE") or input("Files to include in build (comma-separated and within project folder): ")
@@ -49,12 +55,12 @@ def main() -> None:
         try:
             headers = item.login(page, context, urls)
 
-            if os.environ.get("FG_UPLOAD_BUILD", "TRUE") == "TRUE":
+            if get_bool_env("FG_UPLOAD_BUILD", default=True):
                 channel = ForgeReleaseChannel[os.environ.get("FG_RELEASE_CHANNEL", "LIVE").upper()]
                 item.upload_and_publish(headers, urls, new_files, channel)
 
-            if os.environ.get("FG_README_UPDATE", "FALSE") == "TRUE":
-                readme_text = build_processing.get_readme(new_files, no_images=os.environ.get("FG_README_NO_IMAGES", "FALSE") == "TRUE")
+            if get_bool_env("FG_README_UPDATE", default=False):
+                readme_text = build_processing.get_readme(new_files, no_images=get_bool_env("FG_README_NO_IMAGES", default=False))
                 item.update_description(page, context, urls, readme_text)
 
         finally:
