@@ -2,8 +2,8 @@
 
 import importlib.metadata
 
-HTTP_OK = 200
 TIMEOUT_SECONDS: float = 7.0
+UI_INTERACTION_DELAY: float = 0.25
 
 
 def get_user_agent() -> str:

@@ -13,7 +13,7 @@ from bs4.element import NavigableString
 from patchright.sync_api import BrowserContext, Cookie, Page
 from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
 
-from .shared_constants import HTTP_OK, get_user_agent
+from .shared_constants import UI_INTERACTION_DELAY, get_user_agent
 
 if TYPE_CHECKING:
     from patchright.sync_api import ElementHandle
@@ -67,7 +67,7 @@ class ForgeCredentials:
         page = context.new_page()
         response = page.goto(urls.MANAGE_CRAFT)
 
-        if not response or response.status != HTTP_OK:
+        if not response or not response.ok:
             page.close()
             error_msg = "Empty response when fetching CSRF token"
             raise ForgeLoginException(error_msg)
@@ -117,37 +117,58 @@ class ForgeItem:
         csrf_token = self.creds.get_csrf_token(context, urls)
         return _build_headers(cookies, csrf_token)
 
-    def login(self, page: Page, context: BrowserContext, urls: ForgeURLs) -> dict[str, str]:
-        """Open manage-craft and login if prompted. Returns headers dict with cookies and CSRF token."""
+    def _is_already_logged_in(self, page: Page, urls: ForgeURLs) -> bool:
+        """Check if user is already logged in by looking for the items table."""
+        page.goto(urls.FORGE_LOGIN)
+
+        try:
+            alert_div = _wait_for_element(page, "div[class='alert alert-info text-center']", self.timeout, "Message confirming not logged in")
+            return not alert_div.inner_text().__contains__("You are not logged in")
+        except PlaywrightTimeoutError:
+            return True
+
+    def _perform_login(self, page: Page, urls: ForgeURLs) -> None:
+        """Fill in and submit login form."""
         page.goto(urls.FORGE_LOGIN)
 
         try:
             username_field = _wait_for_element(page, "input[name='vb_login_username']", self.timeout, "Username field")
             password_field = _wait_for_element(page, "input[name='vb_login_password']", self.timeout, "Password field")
 
-            time.sleep(0.25)
+            time.sleep(UI_INTERACTION_DELAY)
             username_field.fill(self.creds.username)
             password_field.fill(self.creds.password)
 
             login_button = _wait_for_element(page, "//a[@class='registerbtn']", self.timeout, "Login button")
             login_button.click()
-            time.sleep(0.25)
+            time.sleep(UI_INTERACTION_DELAY)
 
-            try:
-                page.wait_for_selector("//div[@class='blockrow restore']", timeout=self.timeout * 1000)
-                raise ForgeLoginException(self.creds.username)
-            except PlaywrightTimeoutError:
-                logger.info("Logged in as %s", self.creds.username)
-                return self._get_auth_headers(context, urls)
+        except PlaywrightTimeoutError as e:
+            error_msg = "Login form not found or not interactive"
+            raise PlaywrightTimeoutError(error_msg) from e
+
+    def _login_failed(self, page: Page) -> bool:
+        """Check if login failed by looking for error indicator."""
+        try:
+            alert_div = _wait_for_element(page, "//div[@class='blockrow restore']", self.timeout, "Login failure message")
+            return not alert_div.inner_text().__contains__("You have entered an invalid username or password")
 
         except PlaywrightTimeoutError:
-            try:
-                page.wait_for_selector("select[name='items-table_length']", timeout=self.timeout * 1000)
-                logger.info("Already logged in")
-                return self._get_auth_headers(context, urls)
-            except PlaywrightTimeoutError as e:
-                error_msg = "No username or password field found, or login button is not clickable."
-                raise PlaywrightTimeoutError(error_msg) from e
+            return False
+
+    def login(self, page: Page, context: BrowserContext, urls: ForgeURLs) -> dict[str, str]:
+        """Open manage-craft and login if prompted. Returns headers dict with cookies and CSRF token."""
+        if self._is_already_logged_in(page, urls):
+            logger.info("Already logged in")
+            return self._get_auth_headers(context, urls)
+
+        self._perform_login(page, urls)
+
+        if self._login_failed(page):
+            raise ForgeLoginException(self.creds.username)
+
+        logger.info("Logged in as %s", self.creds.username)
+        return self._get_auth_headers(context, urls)
 
     def upload_and_publish(self, headers: dict[str, str], urls: ForgeURLs, new_files: list[Path], channel: ForgeReleaseChannel) -> None:
         """Upload and publish a new build to the FG Forge using direct API calls."""
@@ -182,7 +203,7 @@ class ForgeItem:
 
         response = requests.post(upload_url, files=files, headers=upload_headers, timeout=30)
 
-        if response.text or response.status_code != HTTP_OK:
+        if response.text or not response.ok:
             error_msg = f"Build upload failed with status {response.status_code}: {response.text}"
             raise ForgeUploadException(error_msg)
 
@@ -196,7 +217,7 @@ class ForgeItem:
     def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
         """Set the build channel of this Forge item to the specified value, returning True on 200 OK."""
         response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}", headers=headers, timeout=30)
-        return response.status_code == HTTP_OK
+        return response.ok
 
     def replace_description(self, page: Page, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""
@@ -212,10 +233,10 @@ class ForgeItem:
         logger.info("Forge item description cleared")
 
         page.evaluate("([field, text]) => { field.innerHTML = text; }", [description_field.element_handle(), description_text])
-        time.sleep(0.25)
+        time.sleep(UI_INTERACTION_DELAY)
 
         submit_button.click()
-        time.sleep(0.25)
+        time.sleep(UI_INTERACTION_DELAY)
         logger.info("Forge item description uploaded")
 
     def update_description(self, page: Page, context: BrowserContext, urls: ForgeURLs, description: str) -> None:
@@ -224,7 +245,7 @@ class ForgeItem:
         logger.info("Updating Forge item description")
 
         page.goto(urls.MANAGE_CRAFT)
-        page.wait_for_selector("select[name='items-table_length']", timeout=self.timeout * 1000)
+        _wait_for_element(page, "select[name='items-table_length']", self.timeout, "Item table")
 
         item_link = _wait_for_element(page, f"//a[@data-item-id='{self.item_id}']", self.timeout, f"Item link for item ID {self.item_id}")
         item_link.click()
