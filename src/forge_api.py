@@ -5,7 +5,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, cast, TypedDict
+from typing import TYPE_CHECKING, TypedDict, cast
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -22,13 +22,15 @@ logger = logging.getLogger(__name__)
 
 
 class BuildInfo(TypedDict):
-    """Dictionary of string-formated information about a single Forge Build"""
+    """Dictionary of string-formated information about a single Forge Build."""
+
     id: str
     build_num: str
     upload_date: str
     channel: str
 
-class ForgeLoginException(Exception):
+
+class ForgeLoginError(Exception):
     """Exception to be raised when forge login is unsuccessful."""
 
     def __init__(self, username: str) -> None:
@@ -37,7 +39,7 @@ class ForgeLoginException(Exception):
         super().__init__(self.message)
 
 
-class ForgeUploadException(Exception):
+class ForgeUploadError(Exception):
     """Exception to be raised when file upload fails."""
 
 
@@ -76,7 +78,7 @@ class ForgeCredentials:
         if not response or not response.ok:
             page.close()
             error_msg = "Empty response when fetching CSRF token"
-            raise ForgeLoginException(error_msg)
+            raise ForgeLoginError(error_msg)
 
         content = page.content()
         page.close()
@@ -85,12 +87,12 @@ class ForgeCredentials:
         token_element = soup.find(attrs={"name": "csrf-token"})
         if not isinstance(token_element, Tag):
             error_msg = "CSRF token html element not found or invalid"
-            raise ForgeLoginException(error_msg)
+            raise ForgeLoginError(error_msg)
 
         content = str(token_element.get("content"))
         if not content:
             error_msg = "CSRF token content attribute is empty"
-            raise ForgeLoginException(error_msg)
+            raise ForgeLoginError(error_msg)
 
         return content
 
@@ -177,7 +179,7 @@ class ForgeItem:
         self._perform_login(page, urls)
 
         if self._login_failed(page):
-            raise ForgeLoginException(self.creds.username)
+            raise ForgeLoginError(self.creds.username)
 
         logger.info("Logged in as %s", self.creds.username)
         return self._get_auth_headers(context, urls)
@@ -217,7 +219,7 @@ class ForgeItem:
 
         if response.text or not response.ok:
             error_msg = f"Build upload failed with status {response.status_code}: {response.text}"
-            raise ForgeUploadException(error_msg)
+            raise ForgeUploadError(error_msg)
 
         logger.info("Build upload complete for all files")
 
