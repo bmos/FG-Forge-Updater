@@ -44,10 +44,15 @@ def readme_html(markdown_text: str, *, no_images: bool = False) -> str:
 
 
 def get_readme(new_files: list[Path], *, no_images: bool = False, readme_name: str = "README.md") -> str:
-    """Read the first README.md found in the new zip files and call readme_html() returning the result."""
-    return next(
-        (readme_html(ZipFile(file).read(readme_name).decode("UTF-8"), no_images=no_images) for file in new_files if readme_name in ZipFile(file).namelist()), ""
-    )
+    """Extract and convert README file from the first zip file containing one."""
+    for file in new_files:
+        with ZipFile(file) as zf:
+            if readme_name in zf.namelist():
+                markdown_text = zf.read(readme_name).decode("UTF-8")
+                return readme_html(markdown_text, no_images=no_images)
+
+    error_msg = "No README file found."
+    raise FileNotFoundError(error_msg)
 
 
 def get_build(file_path: PurePath, env_file: str) -> Path:

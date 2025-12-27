@@ -69,9 +69,6 @@ FG_RELEASE_CHANNEL=LIVE
 FG_README_UPDATE=FALSE
 # [OPTIONAL] set this to TRUE to remove images instead of creating links
 FG_README_NO_IMAGES=FALSE
-
-# [OPTIONAL] set this to TRUE to generate a "cumulative-sales.png" image
-FG_GRAPH_SALES=FALSE
 ```
 
 2. Put an ext file to upload into the project folder.
