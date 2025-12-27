@@ -224,6 +224,7 @@ class ForgeItem:
     def get_item_builds(self, headers: dict[str, str], urls: ForgeURLs) -> list[BuildInfo]:
         """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
         response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table", headers=headers, timeout=30)
+        response.raise_for_status()
         return response.json()["data"]
 
     def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
