@@ -12,7 +12,7 @@ from src import build_processing
 from src.forge_api import ForgeCredentials, ForgeItem, ForgeReleaseChannel, ForgeURLs
 from src.shared_constants import TIMEOUT_SECONDS, get_user_agent
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(levelname)s : fg-forge-updater:%(name)s : %(message)s")
 
 
 def get_bool_env(key: str, *, default: bool = False) -> bool:
