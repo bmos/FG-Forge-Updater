@@ -32,7 +32,18 @@ dev = [
     "types-requests==2.32.4.20250913",
 ]
 
+[project.scripts]
+fg-forge-updater = "src.main:main"
+
+[build-system]
+requires = ["setuptools>=80.0"]
+build-backend = "setuptools.build_meta"
+
 [tool]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
 
 [tool.ruff]
 line-length = 160
