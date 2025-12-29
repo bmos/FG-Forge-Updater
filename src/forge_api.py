@@ -75,9 +75,14 @@ class ForgeCredentials:
         page = context.new_page()
         response = page.goto(urls.MANAGE_CRAFT)
 
-        if not response or not response.ok:
+        if not response:
             page.close()
             error_msg = "Empty response when fetching CSRF token"
+            raise ForgeLoginError(error_msg)
+
+        if not response.ok:
+            page.close()
+            error_msg = "HTML failure code when fetching CSRF token"
             raise ForgeLoginError(error_msg)
 
         content = page.content()
