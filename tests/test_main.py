@@ -1,4 +1,4 @@
-"""Tests for main.py functionality."""
+"""Tests for main.py."""
 
 from collections.abc import Generator
 from pathlib import Path
