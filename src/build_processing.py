@@ -1,7 +1,7 @@
 import itertools
 import logging
 import re
-from pathlib import Path, PurePath
+from pathlib import Path
 from zipfile import ZipFile
 
 import mdformat
@@ -53,13 +53,3 @@ def get_readme(new_files: list[Path], *, no_images: bool = False, readme_name: s
 
     error_msg = "No README file found."
     raise FileNotFoundError(error_msg)
-
-
-def get_build(file_path: PurePath, env_file: str) -> Path:
-    """Combine PurePath and file name into a Path object, ensure that a file exists there, and return the Path."""
-    new_file = Path(file_path, env_file)
-    logger.info("File upload path determined to be: %s", new_file)
-    if not new_file.is_file():
-        error_msg = f"File at {new_file!s} is not found."
-        raise FileNotFoundError(error_msg)
-    return new_file

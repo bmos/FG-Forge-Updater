@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup, Tag
 
 from src.build_processing import (
     apply_styles_to_table,
-    get_build,
     get_readme,
     readme_html,
     replace_images_with_link,
@@ -200,34 +199,3 @@ class TestGetReadme:
         h1 = soup.find("h1")
         assert h1 is not None
         assert h1.get_text() == "Custom README"
-
-
-class TestGetBuild:
-    """Tests for get_build function."""
-
-    def test_returns_path_when_file_exists(self, tmp_path: Path) -> None:
-        """Test that Path is returned when file exists."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("content")
-
-        result = get_build(tmp_path, "test.txt")
-
-        assert result == test_file
-        assert result.is_file()
-
-    def test_raises_error_when_file_not_found(self, tmp_path: Path) -> None:
-        """Test that FileNotFoundError is raised when file doesn't exist."""
-        with pytest.raises(FileNotFoundError, match="is not found"):
-            get_build(tmp_path, "nonexistent.txt")
-
-    def test_combines_path_correctly(self, tmp_path: Path) -> None:
-        """Test that PurePath and filename are combined correctly."""
-        subdir = tmp_path / "subdir"
-        subdir.mkdir()
-        test_file = subdir / "test.txt"
-        test_file.write_text("content")
-
-        result = get_build(subdir, "test.txt")
-
-        assert result.parent == subdir
-        assert result.name == "test.txt"
