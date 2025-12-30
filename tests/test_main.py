@@ -220,6 +220,44 @@ class TestResolveFilePaths:
         assert len(result) == 3
         assert set(result) == {file1, file2, file3}
 
+    @pytest.mark.parametrize(
+        ("patch", "expected_desc"),
+        [
+            ("is_symlink", "symbolic link"),
+            ("is_socket", "socket"),
+            ("is_fifo", "FIFO / named pipe"),
+            ("is_block_device", "block device"),
+            ("is_char_device", "character device"),
+            (None, "unknown filesystem object"),
+        ],
+    )
+    def test_resolve_path_neither_file_nor_directory_describe_types(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        patch: str | None,
+        expected_desc: str,
+    ) -> None:
+        """Test resolve_file_paths raises correct error for non-file, non-directory paths."""
+        all_type_checks = ("is_file", "is_dir", "is_symlink", "is_socket", "is_fifo", "is_block_device", "is_char_device")
+
+        test_path = tmp_path / "weird"
+        test_path.touch()  # ensure path exists
+
+        # Ensure filesystem object doesn't detect as anything else
+        for type_check in all_type_checks:
+            monkeypatch.setattr(Path, type_check, lambda _v: False)
+
+        # Enable the specific type_check result
+        if patch:
+            monkeypatch.setattr(Path, patch, lambda _v: True)
+
+        with pytest.raises(
+            ValueError,
+            match=re.escape(f"Path at {test_path.resolve()!s} is neither a file nor a directory. Filesystem object type: {expected_desc}"),
+        ):
+            resolve_file_paths(str(test_path), tmp_path)
+
 
 class TestConstructObjects:
     """Tests for construct_objects function."""
