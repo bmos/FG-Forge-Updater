@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 
 from src.forge_api import ForgeItem, ForgeReleaseChannel, ForgeURLs
-from src.main import construct_objects, get_bool_env, main
+from src.main import construct_objects, get_bool_env, main, resolve_file_paths
 
 
 class TestGetBoolEnv:
@@ -57,82 +57,252 @@ class TestGetBoolEnv:
         assert get_bool_env("NONEXISTENT_VAR") is False
 
 
+class TestResolveFilePaths:
+    """Tests for resolve_file_paths function."""
+
+    def test_resolve_single_file_absolute(self, tmp_path: Path) -> None:
+        """Test resolving an absolute path to a single file."""
+        test_file = tmp_path / "test.pak"
+        test_file.write_text("test content")
+
+        result = resolve_file_paths(str(test_file), tmp_path)
+
+        assert len(result) == 1
+        assert result[0] == test_file
+        assert result[0].is_file()
+
+    def test_resolve_single_file_relative(self, tmp_path: Path) -> None:
+        """Test resolving a relative path to a single file."""
+        test_file = tmp_path / "test.pak"
+        test_file.write_text("test content")
+
+        result = resolve_file_paths("test.pak", tmp_path)
+
+        assert len(result) == 1
+        assert result[0] == test_file
+        assert result[0].is_file()
+
+    def test_resolve_directory_with_files(self, tmp_path: Path) -> None:
+        """Test resolving a directory path returns all files in the directory."""
+        test_dir = tmp_path / "builds"
+        test_dir.mkdir()
+
+        file1 = test_dir / "build1.pak"
+        file2 = test_dir / "build2.pak"
+        file3 = test_dir / "build3.ext"
+
+        file1.write_text("content1")
+        file2.write_text("content2")
+        file3.write_text("content3")
+
+        result = resolve_file_paths(str(test_dir), tmp_path)
+
+        assert len(result) == 3
+        assert all(f.is_file() for f in result)
+        assert set(result) == {file1, file2, file3}
+
+    def test_resolve_directory_ignores_subdirectories(self, tmp_path: Path) -> None:
+        """Test that directory resolution only returns files, not subdirectories."""
+        test_dir = tmp_path / "builds"
+        test_dir.mkdir()
+
+        file1 = test_dir / "build1.pak"
+        file1.write_text("content1")
+
+        subdir = test_dir / "subdir"
+        subdir.mkdir()
+        nested_file = subdir / "nested.pak"
+        nested_file.write_text("nested content")
+
+        result = resolve_file_paths(str(test_dir), tmp_path)
+
+        assert len(result) == 1
+        assert result[0] == file1
+        assert nested_file not in result
+
+    def test_resolve_directory_empty_raises_error(self, tmp_path: Path) -> None:
+        """Test that an empty directory raises a ValueError."""
+        empty_dir = tmp_path / "empty"
+        empty_dir.mkdir()
+
+        with pytest.raises(ValueError, match="contains no files"):
+            resolve_file_paths(str(empty_dir), tmp_path)
+
+    def test_resolve_nonexistent_path_raises_error(self, tmp_path: Path) -> None:
+        """Test that a nonexistent path raises a FileNotFoundError."""
+        with pytest.raises(FileNotFoundError, match="does not exist"):
+            resolve_file_paths("nonexistent.pak", tmp_path)
+
+    def test_resolve_directory_relative(self, tmp_path: Path) -> None:
+        """Test resolving a relative directory path."""
+        test_dir = tmp_path / "builds"
+        test_dir.mkdir()
+
+        file1 = test_dir / "build1.pak"
+        file1.write_text("content1")
+
+        result = resolve_file_paths("builds", tmp_path)
+
+        assert len(result) == 1
+        assert result[0] == file1
+
+    def test_resolve_comma_separated_files(self, tmp_path: Path) -> None:
+        """Test resolving comma-separated file paths."""
+        file1 = tmp_path / "file1.pak"
+        file2 = tmp_path / "file2.pak"
+        file1.write_text("content1")
+        file2.write_text("content2")
+
+        result = resolve_file_paths(f"{file1},{file2}", tmp_path)
+
+        assert len(result) == 2
+        assert set(result) == {file1, file2}
+
+    def test_resolve_comma_separated_with_spaces(self, tmp_path: Path) -> None:
+        """Test that comma-separated paths with spaces are handled correctly."""
+        file1 = tmp_path / "file1.pak"
+        file2 = tmp_path / "file2.pak"
+        file1.write_text("content1")
+        file2.write_text("content2")
+
+        result = resolve_file_paths(f"{file1} , {file2}", tmp_path)
+
+        assert len(result) == 2
+        assert set(result) == {file1, file2}
+
+    def test_resolve_mixed_files_and_directories(self, tmp_path: Path) -> None:
+        """Test resolving a mix of files and directories in comma-separated list."""
+        single_file = tmp_path / "single.pak"
+        single_file.write_text("single content")
+
+        test_dir = tmp_path / "builds"
+        test_dir.mkdir()
+
+        dir_file1 = test_dir / "build1.pak"
+        dir_file2 = test_dir / "build2.pak"
+        dir_file1.write_text("content1")
+        dir_file2.write_text("content2")
+
+        result = resolve_file_paths(f"{single_file},{test_dir}", tmp_path)
+
+        assert len(result) == 3
+        assert set(result) == {single_file, dir_file1, dir_file2}
+
+    def test_resolve_empty_string_segments(self, tmp_path: Path) -> None:
+        """Test that empty string segments from trailing commas are ignored."""
+        test_file = tmp_path / "test.pak"
+        test_file.write_text("test content")
+
+        result = resolve_file_paths(f"{test_file},", tmp_path)
+
+        assert len(result) == 1
+        assert result[0] == test_file
+
+    def test_resolve_multiple_directories(self, tmp_path: Path) -> None:
+        """Test resolving multiple directories in comma-separated list."""
+        dir1 = tmp_path / "dir1"
+        dir2 = tmp_path / "dir2"
+        dir1.mkdir()
+        dir2.mkdir()
+
+        file1 = dir1 / "file1.pak"
+        file2 = dir1 / "file2.pak"
+        file3 = dir2 / "file3.pak"
+
+        file1.write_text("content1")
+        file2.write_text("content2")
+        file3.write_text("content3")
+
+        result = resolve_file_paths(f"{dir1},{dir2}", tmp_path)
+
+        assert len(result) == 3
+        assert set(result) == {file1, file2, file3}
+
+
 class TestConstructObjects:
     """Tests for construct_objects function."""
 
     @pytest.fixture
-    def mock_env_vars(self, monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
+    def mock_env_vars(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
         """Set up environment variables for testing."""
-        env_vars = {
-            "FG_UL_FILE": "test1.pak,test2.pak",
-            "FG_USER_NAME": "testuser",
-            "FG_USER_PASS": "testpass",
-            "FG_ITEM_ID": "12345",
-        }
-        for key, value in env_vars.items():
-            monkeypatch.setenv(key, value)
-        return env_vars
+        test_file = tmp_path / "test.pak"
+        test_file.write_text("content")
 
-    @pytest.mark.usefixtures("mock_env_vars")
-    @patch("src.main.build_processing.get_build")
-    def test_construct_objects_from_env(self, mock_get_build: Mock) -> None:
-        """Test construct_objects successfully creates objects from environment variables."""
-        mock_path = Path("/fake/path/file.pak")
-        mock_get_build.return_value = mock_path
+        monkeypatch.setenv("FG_UL_FILE", str(test_file))
+        monkeypatch.setenv("FG_USER_NAME", "testuser")
+        monkeypatch.setenv("FG_USER_PASS", "testpass")
+        monkeypatch.setenv("FG_ITEM_ID", "12345")
 
-        new_files, item, urls = construct_objects()
+        return test_file
 
-        assert len(new_files) == 2
-        assert all(f == mock_path for f in new_files)
-        assert isinstance(item, ForgeItem)
-        assert item.item_id == "12345"
-        assert item.creds.username == "testuser"
-        assert item.creds.password == "testpass"
-        assert isinstance(urls, ForgeURLs)
-        assert mock_get_build.call_count == 2
-
-    @patch("src.main.build_processing.get_build")
-    @patch("builtins.input")
-    @patch("getpass.getpass")
-    def test_construct_objects_from_input(
-        self,
-        mock_getpass: Mock,
-        mock_input: Mock,
-        mock_get_build: Mock,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        """Test construct_objects prompts for input when env vars missing."""
-        # Remove env vars
-        for key in ["FG_UL_FILE", "FG_USER_NAME", "FG_USER_PASS", "FG_ITEM_ID"]:
-            monkeypatch.delenv(key, raising=False)
-
-        mock_input.side_effect = ["file.pak", "inputuser", "67890"]
-        mock_getpass.return_value = "inputpass"
-        mock_get_build.return_value = Path("/fake/file.pak")
-
+    def test_construct_objects_from_env(self, mock_env_vars: Path) -> None:
+        """Test that construct_objects correctly reads from environment variables."""
         new_files, item, _urls = construct_objects()
 
         assert len(new_files) == 1
-        assert item.creds.username == "inputuser"
-        assert item.creds.password == "inputpass"
-        assert item.item_id == "67890"
-        assert mock_input.call_count == 3
-        assert mock_getpass.call_count == 1
+        assert new_files[0] == mock_env_vars
+        assert item.creds.username == "testuser"
+        assert item.creds.password == "testpass"
+        assert item.item_id == "12345"
 
-    @patch("src.main.build_processing.get_build")
-    def test_construct_objects_multiple_files(self, mock_get_build: Mock, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Test construct_objects handles multiple comma-separated files."""
-        monkeypatch.setenv("FG_UL_FILE", "a.pak,b.pak,c.pak")
-        monkeypatch.setenv("FG_USER_NAME", "user")
-        monkeypatch.setenv("FG_USER_PASS", "pass")
-        monkeypatch.setenv("FG_ITEM_ID", "123")
+    def test_construct_objects_with_comma_separated_files(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        """Test that construct_objects handles comma-separated file list."""
+        file1 = tmp_path / "file1.pak"
+        file2 = tmp_path / "file2.pak"
+        file1.write_text("content1")
+        file2.write_text("content2")
 
-        mock_get_build.return_value = Path("/fake/file.pak")
+        monkeypatch.setenv("FG_UL_FILE", f"{file1},{file2}")
+        monkeypatch.setenv("FG_USER_NAME", "testuser")
+        monkeypatch.setenv("FG_USER_PASS", "testpass")
+        monkeypatch.setenv("FG_ITEM_ID", "12345")
 
-        new_files, _, _ = construct_objects()
+        new_files, _item, _urls = construct_objects()
 
-        assert len(new_files) == 3
-        assert mock_get_build.call_count == 3
+        assert len(new_files) == 2
+        assert set(new_files) == {file1, file2}
+
+    def test_construct_objects_with_directory(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        """Test that construct_objects handles directory paths."""
+        test_dir = tmp_path / "builds"
+        test_dir.mkdir()
+
+        file1 = test_dir / "build1.pak"
+        file2 = test_dir / "build2.pak"
+        file1.write_text("content1")
+        file2.write_text("content2")
+
+        monkeypatch.setenv("FG_UL_FILE", str(test_dir))
+        monkeypatch.setenv("FG_USER_NAME", "testuser")
+        monkeypatch.setenv("FG_USER_PASS", "testpass")
+        monkeypatch.setenv("FG_ITEM_ID", "12345")
+
+        new_files, _item, _urls = construct_objects()
+
+        assert len(new_files) == 2
+        assert set(new_files) == {file1, file2}
+
+    @patch("builtins.input")
+    def test_construct_objects_from_input(self, mock_input: MagicMock, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+        """Test that construct_objects correctly reads from user input when env vars are not set."""
+        test_file = tmp_path / "test.pak"
+        test_file.write_text("content")
+
+        monkeypatch.delenv("FG_UL_FILE", raising=False)
+        monkeypatch.delenv("FG_USER_NAME", raising=False)
+        monkeypatch.delenv("FG_USER_PASS", raising=False)
+        monkeypatch.delenv("FG_ITEM_ID", raising=False)
+
+        mock_input.side_effect = [str(test_file), "testuser", "12345"]
+
+        with patch("getpass.getpass", return_value="testpass"):
+            new_files, item, _urls = construct_objects()
+
+        assert len(new_files) == 1
+        assert new_files[0] == test_file
+        assert item.creds.username == "testuser"
+        assert item.creds.password == "testpass"
+        assert item.item_id == "12345"
 
 
 @pytest.fixture
