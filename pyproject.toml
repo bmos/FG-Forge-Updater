@@ -5,7 +5,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
 authors = [{ name = "Ramona T", email = "ramona.t.me@pm.me" }]
-urls = { Repository = "https://github.com/bmos/fg_forge_updater" }
+urls = { Repository = "https://github.com/bmos/FG-Forge-Updater" }
 dependencies = [
     "beautifulsoup4==4.14.3",
     "markdown==3.10",
