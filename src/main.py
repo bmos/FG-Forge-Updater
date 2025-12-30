@@ -81,7 +81,8 @@ def resolve_file_paths(path_string: str, project_root: Path) -> list[Path]:
                 error_msg = f"Directory at {resolved_path!s} contains no files."
                 raise ValueError(error_msg)
             logger.info("Directory upload path determined to be: %s (contains %d files)", resolved_path, len(files))
-            [logger.info("  - %s", file.name) for file in files]
+            for file in files:
+                logger.info("  - %s", file.name)
             all_files.extend(files)
         else:
             error_msg = f"Path at {resolved_path!s} is neither a file nor a directory. Filesystem object type: {_describe_path_type(resolved_path)}"

@@ -1,5 +1,6 @@
 """Tests for main.py."""
 
+import re
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any
@@ -125,13 +126,14 @@ class TestResolveFilePaths:
         empty_dir = tmp_path / "empty"
         empty_dir.mkdir()
 
-        with pytest.raises(ValueError, match="contains no files"):
+        with pytest.raises(ValueError, match=re.escape(f"Directory at {empty_dir!s} contains no files")):
             resolve_file_paths(str(empty_dir), tmp_path)
 
     def test_resolve_nonexistent_path_raises_error(self, tmp_path: Path) -> None:
         """Test that a nonexistent path raises a FileNotFoundError."""
-        with pytest.raises(FileNotFoundError, match="does not exist"):
-            resolve_file_paths("nonexistent.pak", tmp_path)
+        path_string = "nonexistent.pak"
+        with pytest.raises(FileNotFoundError, match=re.escape(f"Path at {(tmp_path / path_string)!s} does not exist")):
+            resolve_file_paths(path_string, tmp_path)
 
     def test_resolve_directory_relative(self, tmp_path: Path) -> None:
         """Test resolving a relative directory path."""
