@@ -22,6 +22,21 @@ def get_bool_env(key: str, *, default: bool = False) -> bool:
     return value.upper() in ("TRUE", "1", "YES", "ON")
 
 
+def _describe_path_type(p: Path) -> str:
+    """Return a human-readable description of a filesystem object's type."""
+    if p.is_symlink():
+        return "symbolic link"
+    if p.is_socket():
+        return "socket"
+    if p.is_fifo():
+        return "FIFO / named pipe"
+    if p.is_block_device():
+        return "block device"
+    if p.is_char_device():
+        return "character device"
+    return "unknown filesystem object"
+
+
 def resolve_file_paths(path_string: str, project_root: Path) -> list[Path]:
     """
     Resolve file or directory paths that may be absolute or relative.
@@ -66,11 +81,10 @@ def resolve_file_paths(path_string: str, project_root: Path) -> list[Path]:
                 error_msg = f"Directory at {resolved_path!s} contains no files."
                 raise ValueError(error_msg)
             logger.info("Directory upload path determined to be: %s (contains %d files)", resolved_path, len(files))
-            for file in files:
-                logger.info("  - %s", file.name)
+            [logger.info("  - %s", file.name) for file in files]
             all_files.extend(files)
         else:
-            error_msg = f"Path at {resolved_path!s} is neither a file nor a directory."
+            error_msg = f"Path at {resolved_path!s} is neither a file nor a directory. Filesystem object type: {_describe_path_type(resolved_path)}"
             raise ValueError(error_msg)
 
     return all_files
@@ -99,12 +113,10 @@ def main() -> None:
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=["--window-size=1280,1024"])
-
         context = browser.new_context(
             user_agent=get_user_agent(),
             viewport=ViewportSize(width=1280, height=1024),
         )
-
         page = context.new_page()
 
         try:
