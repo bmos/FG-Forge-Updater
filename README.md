@@ -49,29 +49,30 @@ uv pip install .
 
 2. [OPTIONAL] Create a `.env` file in the project folder containing the following (but with your information):
 
-    > [!NOTE]
-    > You can add these values directly to your environment variables.
+> [!NOTE]
+> You can add these values directly to your environment variables.
+> If no environment variables are set and no .env file is found, command line will prompt for Forge login credentials and item ID. Build will be uploaded and added to LIVE. Description will not be updated.
 
-    ```env
-    # your FG forum username
-    FG_USER_NAME=**********
-    # your FG forum password
-    FG_USER_PASS=**********
-    # the item ID of the FG Forge item you want to modify
-    FG_ITEM_ID=33
-    # the name(s) of the (supported -- ext, pak, mod, etc) file(s) you want to upload (can be comma-separated list)
-    FG_UL_FILE=path/to/file.ext
+```env
+# your FG forum username
+FG_USER_NAME=**********
+# your FG forum password
+FG_USER_PASS=**********
+# the item ID of the FG Forge item you want to modify
+FG_ITEM_ID=33
+# file(s) (supported types -- ext, pak, mod, etc) you want to upload (relative to project folder or absolute paths; comma-separated list or path to directory if multiple)
+FG_UL_FILE=path/to/file.ext
 
-    # [OPTIONAL] set this to FALSE to skip build uploading
-    FG_UPLOAD_BUILD=TRUE
-    # [OPTIONAL] set this to "TEST" or "NONE" if you would rather target those channels
-    FG_RELEASE_CHANNEL=LIVE
+# [OPTIONAL] set this to FALSE to skip build uploading
+FG_UPLOAD_BUILD=TRUE
+# [OPTIONAL] set this to "TEST" or "NONE" if you would rather target those channels
+FG_RELEASE_CHANNEL=LIVE
 
-    # [OPTIONAL] set this to TRUE to prevent replacing the description with the contents of README.md
-    FG_README_UPDATE=FALSE
-    # [OPTIONAL] set this to TRUE to remove images instead of creating links
-    FG_README_NO_IMAGES=FALSE
-    ```
+# [OPTIONAL] set this to TRUE to prevent replacing the description with the contents of README.md
+FG_README_UPDATE=FALSE
+# [OPTIONAL] set this to TRUE to remove images instead of creating links
+FG_README_NO_IMAGES=FALSE
+```
 
 3. Run the following command from inside the project folder:
 

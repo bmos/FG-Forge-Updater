@@ -13,6 +13,7 @@ from src.forge_api import ForgeCredentials, ForgeItem, ForgeReleaseChannel, Forg
 from src.shared_constants import TIMEOUT_SECONDS, get_user_agent
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s : fg-forge-updater:%(name)s : %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def get_bool_env(key: str, *, default: bool = False) -> bool:
@@ -21,10 +22,79 @@ def get_bool_env(key: str, *, default: bool = False) -> bool:
     return value.upper() in ("TRUE", "1", "YES", "ON")
 
 
+def _describe_path_type(p: Path) -> str:
+    """Return a human-readable description of a filesystem object's type."""
+    if p.is_symlink():
+        return "symbolic link"
+    if p.is_socket():
+        return "socket"
+    if p.is_fifo():
+        return "FIFO / named pipe"
+    if p.is_block_device():
+        return "block device"
+    if p.is_char_device():
+        return "character device"
+    return "unknown filesystem object"
+
+
+def resolve_file_paths(path_string: str, project_root: Path) -> list[Path]:
+    """
+    Resolve file or directory paths that may be absolute or relative.
+
+    Supports comma-separated paths. Each path can be:
+    - A single file: returns that file
+    - A directory: returns all files within it (non-recursive)
+    - Multiple comma-separated paths: returns all resolved files
+
+    Args:
+        path_string: Comma-separated file or directory path string(s) to resolve
+        project_root: The project root directory for resolving relative paths
+
+    Returns:
+        List of resolved absolute Path objects
+
+    Raises:
+        FileNotFoundError: If any resolved path does not exist
+        ValueError: If any path is a directory but contains no files
+
+    """
+    all_files: list[Path] = []
+
+    for path_segment in path_string.split(","):
+        path_segment_cleaned = path_segment.strip()
+        if not path_segment_cleaned:
+            continue
+
+        input_path = Path(path_segment_cleaned)
+        resolved_path = input_path.resolve() if input_path.is_absolute() else (project_root / input_path).resolve()
+
+        if not resolved_path.exists():
+            error_msg = f"Path at {resolved_path!s} does not exist."
+            raise FileNotFoundError(error_msg)
+
+        if resolved_path.is_file():
+            logger.info("File upload path determined to be: %s", resolved_path)
+            all_files.append(resolved_path)
+        elif resolved_path.is_dir():
+            files = [f for f in resolved_path.iterdir() if f.is_file()]
+            if not files:
+                error_msg = f"Directory at {resolved_path!s} contains no files."
+                raise ValueError(error_msg)
+            logger.info("Directory upload path determined to be: %s (contains %d files)", resolved_path, len(files))
+            for file in files:
+                logger.info("  - %s", file.name)
+            all_files.extend(files)
+        else:
+            error_msg = f"Path at {resolved_path!s} is neither a file nor a directory. Filesystem object type: {_describe_path_type(resolved_path)}"
+            raise ValueError(error_msg)
+
+    return all_files
+
+
 def construct_objects() -> tuple[list[Path], ForgeItem, ForgeURLs]:
     """Construct necessary objects from environment variables or user input."""
-    file_names = os.environ.get("FG_UL_FILE") or input("Files to include in build (comma-separated and within project folder): ")
-    new_files = [build_processing.get_build(PurePath(__file__).parents[1], file) for file in file_names.split(",")]
+    file_names = os.environ.get("FG_UL_FILE") or input("Files/directories to include in build (relative or absolute; comma-separated or directory): ")
+    new_files = resolve_file_paths(file_names, Path(PurePath(__file__).parents[1]))
 
     user_name = os.environ.get("FG_USER_NAME") or input("FantasyGrounds username: ")
     user_pass = os.environ.get("FG_USER_PASS") or getpass.getpass("FantasyGrounds password: ")
@@ -44,12 +114,10 @@ def main() -> None:
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=["--window-size=1280,1024"])
-
         context = browser.new_context(
             user_agent=get_user_agent(),
             viewport=ViewportSize(width=1280, height=1024),
         )
-
         page = context.new_page()
 
         try:
