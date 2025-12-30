@@ -170,7 +170,7 @@ class ForgeItem:
         """Check if login failed by looking for error indicator."""
         try:
             alert_div = _wait_for_element(page, "//div[@class='blockrow restore']", self.timeout, "Login failure message")
-            return not alert_div.inner_text().__contains__("You have entered an invalid username or password")
+            return alert_div.inner_text().__contains__("You have entered an invalid username or password")
 
         except PlaywrightTimeoutError:
             return False
