@@ -40,43 +40,41 @@ source .venv/bin/activate # Linux or macOS
 ```
 
 ```shell
-uv pip install -e .
+uv pip install .
 ```
 
 ## Usage
 
-1. Create a `.env` file in the project folder containing the following (but with your information):
+1. Put the ext file to upload into the project folder.
 
-> [!NOTE]
-> You can add these values directly to your environment variables.
+2. [OPTIONAL] Create a `.env` file in the project folder containing the following (but with your information):
 
-```env
-# your FG forum username
-FG_USER_NAME=**********
-# your FG forum password
-FG_USER_PASS=**********
-# the item ID of the FG Forge item you want to modify
-FG_ITEM_ID=33
-# the name(s) of the (supported -- ext, pak, mod, etc) file(s) you want to upload (can be comma-separated list)
-FG_UL_FILE=path/to/file.ext
+    > [!NOTE]
+    > You can add these values directly to your environment variables.
 
-# [OPTIONAL] set this to FALSE to skip build uploading
-FG_UPLOAD_BUILD=TRUE
-# [OPTIONAL] set this to "TEST" or "NONE" if you would rather target those channels
-FG_RELEASE_CHANNEL=LIVE
+    ```env
+    # your FG forum username
+    FG_USER_NAME=**********
+    # your FG forum password
+    FG_USER_PASS=**********
+    # the item ID of the FG Forge item you want to modify
+    FG_ITEM_ID=33
+    # the name(s) of the (supported -- ext, pak, mod, etc) file(s) you want to upload (can be comma-separated list)
+    FG_UL_FILE=path/to/file.ext
 
-# [OPTIONAL] set this to TRUE to prevent replacing the description with the contents of README.md
-FG_README_UPDATE=FALSE
-# [OPTIONAL] set this to TRUE to remove images instead of creating links
-FG_README_NO_IMAGES=FALSE
+    # [OPTIONAL] set this to FALSE to skip build uploading
+    FG_UPLOAD_BUILD=TRUE
+    # [OPTIONAL] set this to "TEST" or "NONE" if you would rather target those channels
+    FG_RELEASE_CHANNEL=LIVE
 
-# [OPTIONAL] set this to TRUE to generate a "cumulative-sales.png" image
-FG_GRAPH_SALES=FALSE
-```
+    # [OPTIONAL] set this to TRUE to prevent replacing the description with the contents of README.md
+    FG_README_UPDATE=FALSE
+    # [OPTIONAL] set this to TRUE to remove images instead of creating links
+    FG_README_NO_IMAGES=FALSE
+    ```
 
-2. Put an ext file to upload into the project folder.
 3. Run the following command from inside the project folder:
 
 ```shell
-python -m src.main
+fg-forge-uploader
 ```

@@ -1,28 +1,36 @@
 """Provides classes for authenticating to and managing items on the FantasyGrounds Forge marketplace."""
 
-import importlib.metadata
 import logging
 import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from typing import TYPE_CHECKING, TypedDict, cast
 
-import requestium
-from bs4 import BeautifulSoup
-from bs4.element import NavigableString
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.support.select import Select
-from selenium.webdriver.support.ui import WebDriverWait
+import requests
+from bs4 import BeautifulSoup, Tag
+from patchright.sync_api import BrowserContext, Cookie, Page
+from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
 
-from src.dropzone import add_file_to_dropzone, check_report_dropzone_upload_error, check_report_toast_error, check_report_upload_percentage
+from .shared_constants import UI_INTERACTION_DELAY, get_user_agent
+
+if TYPE_CHECKING:
+    from patchright.sync_api import ElementHandle
+
 
 logger = logging.getLogger(__name__)
 
 
-class ForgeLoginException(BaseException):
+class BuildInfo(TypedDict):
+    """Dictionary of string-formated information about a single Forge Build."""
+
+    id: str
+    build_num: str
+    upload_date: str
+    channel: str
+
+
+class ForgeLoginError(Exception):
     """Exception to be raised when forge login is unsuccessful."""
 
     def __init__(self, username: str) -> None:
@@ -31,18 +39,8 @@ class ForgeLoginException(BaseException):
         super().__init__(self.message)
 
 
-class ForgeTransactionType(Enum):
-    """Constants representing the strings used to represent each type of transaction for a Forge item."""
-
-    TREASURE_CHEST = "1"
-    PURCHASE = "2"
-    # TODO(bmos): What is #3?
-    # TODO(bmos): What is #4?
-    GIFT = "5"
-    # TODO(bmos): What is #6?
-    OWNER = "7"
-    # TODO(bmos): What is #8?
-    DONOR = "9"
+class ForgeUploadError(Exception):
+    """Exception to be raised when file upload fails."""
 
 
 class ForgeReleaseChannel(Enum):
@@ -72,18 +70,56 @@ class ForgeCredentials:
     password: str
 
     @staticmethod
-    def get_csrf_token(session: requestium.Session, urls: ForgeURLs) -> str | None:
+    def get_csrf_token(context: BrowserContext, urls: ForgeURLs) -> str:
         """Retrieve the csrf token from the page header. Return None if not found."""
-        response = session.get(urls.MANAGE_CRAFT)
-        if not response or not response.content:
-            logger.error("Empty response when fetching CSRF token")
-            return None
-            
-        soup = BeautifulSoup(response.content, "html.parser")
+        page = context.new_page()
+        response = page.goto(urls.MANAGE_CRAFT)
+
+        if not response:
+            page.close()
+            error_msg = "Empty response when fetching CSRF token"
+            raise ForgeLoginError(error_msg)
+
+        if not response.ok:
+            page.close()
+            error_msg = "HTML failure code when fetching CSRF token"
+            raise ForgeLoginError(error_msg)
+
+        content = page.content()
+        page.close()
+
+        soup = BeautifulSoup(content, "html.parser")
         token_element = soup.find(attrs={"name": "csrf-token"})
-        if not token_element or isinstance(token_element, NavigableString):
-            return None
-        return str(token_element.get("content"))
+        if not isinstance(token_element, Tag):
+            error_msg = "CSRF token html element not found or invalid"
+            raise ForgeLoginError(error_msg)
+
+        content = str(token_element.get("content"))
+        if not content:
+            error_msg = "CSRF token content attribute is empty"
+            raise ForgeLoginError(error_msg)
+
+        return content
+
+
+def _build_headers(cookies: list[Cookie], csrf_token: str) -> dict[str, str]:
+    """Build request headers with cookies and CSRF token."""
+    cookie_header = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+    return {
+        "Cookie": cookie_header,
+        "X-CSRF-TOKEN": csrf_token,
+        "User-Agent": get_user_agent(),
+    }
+
+
+def _wait_for_element(page: Page, selector: str, timeout: float, element_description: str | None = None) -> "ElementHandle":
+    """Wait for an element and raise descriptive error if not found."""
+    element = page.wait_for_selector(selector, timeout=timeout * 1000)
+    if not element:
+        description = element_description or selector
+        error_msg = f"{description} not found"
+        raise PlaywrightTimeoutError(error_msg)
+    return cast("ElementHandle", element)
 
 
 @dataclass(frozen=True)
@@ -94,137 +130,143 @@ class ForgeItem:
     item_id: str
     timeout: float
 
-    def login(self, session: requestium.Session, urls: ForgeURLs) -> None:
-        """Open manage-craft and login if prompted."""
-        session.driver.get(urls.FORGE_LOGIN)
+    def _get_auth_headers(self, context: BrowserContext, urls: ForgeURLs) -> dict[str, str]:
+        """Get authentication headers with cookies and CSRF token."""
+        cookies = context.cookies()
+        csrf_token = self.creds.get_csrf_token(context, urls)
+        return _build_headers(cookies, csrf_token)
+
+    def _is_already_logged_in(self, page: Page, urls: ForgeURLs) -> bool:
+        """Check if user is already logged in by looking for the items table."""
+        page.goto(urls.FORGE_LOGIN)
 
         try:
-            username_field = WebDriverWait(session.driver, self.timeout).until(ec.element_to_be_clickable((By.NAME, "vb_login_username")))
-            password_field = WebDriverWait(session.driver, self.timeout).until(ec.element_to_be_clickable((By.NAME, "vb_login_password")))
-            time.sleep(0.25)
-            username_field.send_keys(self.creds.username)
-            password_field.send_keys(self.creds.password)
-            login_button = WebDriverWait(session.driver, self.timeout).until(ec.element_to_be_clickable((By.XPATH, "//a[@class='registerbtn']")))
+            alert_div = _wait_for_element(page, "div[class='alert alert-info text-center']", self.timeout, "Message confirming not logged in")
+            return not alert_div.inner_text().__contains__("You are not logged in")
+        except PlaywrightTimeoutError:
+            return True
+
+    def _perform_login(self, page: Page, urls: ForgeURLs) -> None:
+        """Fill in and submit login form."""
+        page.goto(urls.FORGE_LOGIN)
+
+        try:
+            username_field = _wait_for_element(page, "input[name='vb_login_username']", self.timeout, "Username field")
+            password_field = _wait_for_element(page, "input[name='vb_login_password']", self.timeout, "Password field")
+
+            time.sleep(UI_INTERACTION_DELAY)
+            username_field.fill(self.creds.username)
+            password_field.fill(self.creds.password)
+
+            login_button = _wait_for_element(page, "//a[@class='registerbtn']", self.timeout, "Login button")
             login_button.click()
-            time.sleep(0.25)
+            time.sleep(UI_INTERACTION_DELAY)
 
-            try:
-                WebDriverWait(session.driver, self.timeout).until(ec.presence_of_element_located((By.XPATH, "//div[@class='blockrow restore']")))
-                raise ForgeLoginException(self.creds.username)
-            except TimeoutException:
-                logger.info("Logged in as %s", self.creds.username)
-                session.transfer_driver_cookies_to_session(copy_user_agent=True)
-                session.headers.update({"X-CSRF-TOKEN": self.creds.get_csrf_token(session, urls)})
+        except PlaywrightTimeoutError as e:
+            error_msg = "Login form not found or not interactive"
+            raise PlaywrightTimeoutError(error_msg) from e
 
-        except TimeoutException:
-            try:
-                WebDriverWait(session.driver, self.timeout).until(ec.presence_of_element_located((By.NAME, "items-table_length")))
-                logger.info("Already logged in")
-            except TimeoutException as e:
-                error_msg = "No username or password field found, or login button is not clickable."
-                raise TimeoutException(error_msg) from e
-
-    def open_items_list(self, driver: WebDriver, urls: ForgeURLs) -> None:
-        """Open the manage craft page, raising an exception if the item table size selector isn't found."""
-        driver.get(urls.MANAGE_CRAFT)
-
+    def _login_failed(self, page: Page) -> bool:
+        """Check if login failed by looking for error indicator."""
         try:
-            items_per_page = Select(WebDriverWait(driver, self.timeout).until(ec.element_to_be_clickable((By.NAME, "items-table_length"))))
-            items_per_page.select_by_visible_text("100")
-        except TimeoutException as e:
-            error_msg = "Could not load the Manage Craft page!"
-            raise TimeoutException(error_msg) from e
+            alert_div = _wait_for_element(page, "//div[@class='blockrow restore']", self.timeout, "Login failure message")
+            return alert_div.inner_text().__contains__("You have entered an invalid username or password")
 
-    def open_item_page(self, driver: WebDriver) -> None:
-        """Open the management page for a specific forge item, raising an exception if a link matching the item_id isn't found."""
-        try:
-            item_link = WebDriverWait(driver, self.timeout).until(ec.element_to_be_clickable((By.XPATH, f"//a[@data-item-id='{self.item_id}']")))
-            item_link.click()
-        except TimeoutException as e:
-            error_msg = f"Could not find item page, is {self.item_id} the right FORGE_ITEM_ID?"
-            raise TimeoutException(error_msg) from e
+        except PlaywrightTimeoutError:
+            return False
 
-    def upload_and_publish(self, session: requestium.Session, urls: ForgeURLs, new_files: list[Path], channel: ForgeReleaseChannel) -> None:
-        """Coordinate sequential use of other class methods to upload and publish a new build to the FG Forge."""
-        self.login(session, urls)
+    def login(self, page: Page, context: BrowserContext, urls: ForgeURLs) -> dict[str, str]:
+        """Open manage-craft and login if prompted. Returns headers dict with cookies and CSRF token."""
+        if self._is_already_logged_in(page, urls):
+            logger.info("Already logged in")
+            return self._get_auth_headers(context, urls)
+
+        self._perform_login(page, urls)
+
+        if self._login_failed(page):
+            raise ForgeLoginError(self.creds.username)
+
+        logger.info("Logged in as %s", self.creds.username)
+        return self._get_auth_headers(context, urls)
+
+    def upload_and_publish(self, headers: dict[str, str], urls: ForgeURLs, new_files: list[Path], channel: ForgeReleaseChannel) -> None:
+        """Upload and publish a new build to the FG Forge using direct API calls."""
         logger.info("Uploading new build to Forge item")
-        self.open_items_list(session.driver, urls)
-        self.open_item_page(session.driver)
-        self.add_build(session.driver, new_files)
+        self.upload_build_direct(headers, urls, new_files)
 
         if channel is ForgeReleaseChannel.NONE:
             logger.info("Target channel is set to none, not setting new build to a release channel.")
             return
-        latest_build_id = max(self.get_item_builds(session, urls), key=lambda build: int(build["build_num"]))["id"]
+
         logger.info("Assigning new build to Forge channel: %s: %s", channel, channel.value)
-        self.set_build_channel(session, urls, latest_build_id, channel)
+        latest_build_id = max(self.get_item_builds(headers, urls), key=lambda build: int(build["build_num"]))["id"]
+        self.set_build_channel(headers, urls, latest_build_id, channel)
 
-    def add_build(self, driver: WebDriver, new_builds: list[Path]) -> None:
-        """Upload new build(s) to this Forge item via dropzone web element."""
-        for build in new_builds:
-            add_file_to_dropzone(driver, self.timeout, build)
+    def upload_build_direct(self, headers: dict[str, str], urls: ForgeURLs, new_builds: list[Path]) -> None:
+        """Upload new build(s) to this Forge item via direct API call."""
+        upload_url = f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/upload"
 
-        submit_button = WebDriverWait(driver, self.timeout).until(ec.element_to_be_clickable((By.ID, "submit-build-button")))
-        submit_button.click()
+        files = {}
+        for idx, build in enumerate(new_builds):
+            file_bytes = build.read_bytes()
+            files[f"buildFiles[{idx}]"] = (build.name, file_bytes, "application/octet-stream")
 
-        check_report_toast_error(driver, self.timeout)
-        check_report_dropzone_upload_error(driver, self.timeout)
-        check_report_upload_percentage(driver)
-        logger.info("Build upload complete")
-
-    def get_sales(self, session: requestium.Session, urls: ForgeURLs, limit_count: int = -1) -> list:
-        """Retrieve a list of sales for this Forge item, filter it by item_id and return the filtered list."""
-        headers = {
-            "User-Agent": f"Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version('fg-forge-updater')}; +https://github.com/bmos/FG-Forge-Updater)",
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
-        response = session.post(urls.API_SALES, data=f"draw=1&length={limit_count}", headers=headers)
-        sales = response.json()["data"]
-
-        def is_sale_type(sale: dict[str, str], sale_type: ForgeTransactionType) -> bool:
-            return sale["item_id"] == self.item_id and sale["transaction_type_id"] == sale_type.value
-
-        sales = [sale for sale in sales if is_sale_type(sale, ForgeTransactionType.PURCHASE)]
-        logger.info("Found %s transactions with transaction type %s for Forge item %s", len(sales), ForgeTransactionType.PURCHASE, self.item_id)
-
-        return sales
-
-    def get_item_builds(self, session: requestium.Session, urls: ForgeURLs) -> dict:
-        """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
-        response = session.post(
-            f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table",
+        upload_headers = {k: v for k, v in headers.items() if k != "Content-Type"}
+        upload_headers.update(
+            {
+                "X-Requested-With": "XMLHttpRequest",
+                "Origin": "https://forge.fantasygrounds.com",
+                "Referer": "https://forge.fantasygrounds.com/crafter/manage-craft",
+            }
         )
+
+        response = requests.post(upload_url, files=files, headers=upload_headers, timeout=30)
+
+        if response.text or not response.ok:
+            error_msg = f"Build upload failed with status {response.status_code}: {response.text}"
+            raise ForgeUploadError(error_msg)
+
+        logger.info("Build upload complete for all files")
+
+    def get_item_builds(self, headers: dict[str, str], urls: ForgeURLs) -> list[BuildInfo]:
+        """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
+        response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table", headers=headers, timeout=30)
+        response.raise_for_status()
         return response.json()["data"]
 
-    def set_build_channel(self, session: requestium.Session, urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
+    def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
         """Set the build channel of this Forge item to the specified value, returning True on 200 OK."""
-        response = session.post(
-            f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}",
-        )
-        return response.status_code == 200  # noqa: PLR2004
+        response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}", headers=headers, timeout=30)
+        return response.ok
 
-    def replace_description(self, driver: WebDriver, description_text: str) -> None:
+    def replace_description(self, page: Page, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""
-        driver.execute_script("window.scrollTo(0, document.body.scrollTop);")
-        uploads_tab = WebDriverWait(driver, self.timeout).until(ec.element_to_be_clickable((By.XPATH, "//a[@id='manage-item-tab']")))
+        page.evaluate("window.scrollTo(0, document.body.scrollTop)")
+
+        uploads_tab = _wait_for_element(page, "//a[@id='manage-item-tab']", self.timeout, "Manage item tab")
         uploads_tab.click()
 
-        submit_button = WebDriverWait(driver, self.timeout).until(ec.element_to_be_clickable((By.ID, "save-item-button")))
+        submit_button = _wait_for_element(page, "#save-item-button", self.timeout, "Save item button")
 
-        description_field = driver.find_element(By.XPATH, "//div[@id='manage-item']").find_element(By.CLASS_NAME, "note-editable")
-        description_field.clear()
+        description_field = page.locator("//div[@id='manage-item']").locator(".note-editable").first
+        description_field.evaluate("el => el.innerHTML = ''")
         logger.info("Forge item description cleared")
-        driver.execute_script("arguments[0].innerHTML = arguments[1];", description_field, description_text)
-        time.sleep(0.25)
+
+        page.evaluate("([field, text]) => { field.innerHTML = text; }", [description_field.element_handle(), description_text])
+        time.sleep(UI_INTERACTION_DELAY)
 
         submit_button.click()
-        time.sleep(0.25)
+        time.sleep(UI_INTERACTION_DELAY)
         logger.info("Forge item description uploaded")
 
-    def update_description(self, session: requestium.Session, urls: ForgeURLs, description: str) -> None:
+    def update_description(self, page: Page, context: BrowserContext, urls: ForgeURLs, description: str) -> None:
         """Coordinates sequential use of other class methods to update the item description for an item on the FG Forge."""
-        self.login(session, urls)
+        self.login(page, context, urls)
         logger.info("Updating Forge item description")
-        self.open_items_list(session.driver, urls)
-        self.open_item_page(session.driver)
-        self.replace_description(session.driver, description)
+
+        page.goto(urls.MANAGE_CRAFT)
+        _wait_for_element(page, "select[name='items-table_length']", self.timeout, "Item table")
+
+        item_link = _wait_for_element(page, f"//a[@data-item-id='{self.item_id}']", self.timeout, f"Item link for item ID {self.item_id}")
+        item_link.click()
+        self.replace_description(page, description)

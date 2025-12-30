@@ -1,6 +1,6 @@
 [project]
 name = "fg-forge-updater"
-version = "1.4.0"
+version = "2.0.0"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
@@ -9,23 +9,18 @@ urls = { Repository = "https://github.com/bmos/fg_forge_updater" }
 dependencies = [
     "beautifulsoup4==4.14.3",
     "markdown==3.10",
-    "matplotlib==3.10.7",
     "mdformat-footnote==0.1.2",
     "mdformat-frontmatter==2.0.8",
     "mdformat-gfm==1.0.0",
-    "pandas==2.3.3",
+    "patchright>=1.56.0",
     "python-dotenv==1.2.1",
-    "requestium @ git+https://github.com/tryolabs/requestium.git@38f5b174727795d6d3ee3f6f4508a152ff5fd0ff", #  0.5.0 (unreleased)
-    "seaborn==0.13.2",
-    "selenium==4.38.0",
+    "requests>=2.32.5",
 ]
 
 [project.optional-dependencies]
 dev = [
     "bandit[sarif]==1.9.2",
     "mypy==1.19.0",
-    "pandas-stubs==2.3.3.251201",
-    "polyfactory==3.1.0",
     "pre-commit==4.5.0",
     "pytest-cov==7.0.0",
     "pytest-xdist==3.8.0",
@@ -35,10 +30,20 @@ dev = [
     "types-Markdown==3.10.0.20251106",
     "types-beautifulsoup4==4.12.0.20250516",
     "types-requests==2.32.4.20250913",
-    "types-seaborn==0.13.2.20251214",
 ]
 
+[project.scripts]
+fg-forge-updater = "src.main:main"
+
+[build-system]
+requires = ["setuptools>=80.0"]
+build-backend = "setuptools.build_meta"
+
 [tool]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
 
 [tool.ruff]
 line-length = 160
@@ -107,14 +112,13 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/{tests,docs}/*" = [
+    "FBT001",  # boolean-type-hint-positional-argument (FBT001)
     "SLF001",  # private-member-access (SLF001)
     "PLR2004",  # magic-value-comparison (PLR2004)
 ]
 
 [tool.pytest]
 addopts = ["-n", "auto", "--cov=src", "--no-cov-on-fail"]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "module"
 testpaths = [
     "tests",
 ]

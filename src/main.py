@@ -1,46 +1,39 @@
 """Automation to enable uploading a new fantasygrounds mod or ext file to the FG Forge and publishing it to the Live channel."""
 
 import getpass
-import importlib.metadata
 import logging
 import os
 from pathlib import Path, PurePath
 
-import requestium
 from dotenv import load_dotenv
-from selenium import webdriver
+from patchright.sync_api import ViewportSize, sync_playwright
 
 from src import build_processing
 from src.forge_api import ForgeCredentials, ForgeItem, ForgeReleaseChannel, ForgeURLs
-from src.users_graph import graph_users
+from src.shared_constants import TIMEOUT_SECONDS, get_user_agent
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s : %(levelname)s : %(message)s")
-
-TIMEOUT_SECONDS: float = 7
-CHROME_ARGS: list[str] = [
-    "--headless=new",
-    "--window-size=1280,1024",
-    f"--user-agent=Mozilla/5.0 (compatible; FG-Forge-Updater/{importlib.metadata.version('fg-forge-updater')}; +https://github.com/bmos/FG-Forge-Updater)",
-]
+logging.basicConfig(level=logging.INFO, format="%(levelname)s : fg-forge-updater:%(name)s : %(message)s")
 
 
-def configure_headless_chrome() -> webdriver.ChromeOptions:
-    """Prepare and return chrome options for using selenium for testing via headless systems like Github Actions."""
-    options = webdriver.ChromeOptions()
-    for arg in CHROME_ARGS:
-        options.add_argument(arg)
-    return options
+def get_bool_env(key: str, *, default: bool = False) -> bool:
+    """Parse boolean from environment variable."""
+    value = os.environ.get(key, str(default).upper())
+    return value.upper() in ("TRUE", "1", "YES", "ON")
 
 
 def construct_objects() -> tuple[list[Path], ForgeItem, ForgeURLs]:
+    """Construct necessary objects from environment variables or user input."""
     file_names = os.environ.get("FG_UL_FILE") or input("Files to include in build (comma-separated and within project folder): ")
     new_files = [build_processing.get_build(PurePath(__file__).parents[1], file) for file in file_names.split(",")]
+
     user_name = os.environ.get("FG_USER_NAME") or input("FantasyGrounds username: ")
     user_pass = os.environ.get("FG_USER_PASS") or getpass.getpass("FantasyGrounds password: ")
     creds = ForgeCredentials(user_name, user_pass)
+
     item_id = os.environ.get("FG_ITEM_ID") or input("Forge item ID: ")
     item = ForgeItem(creds, item_id, TIMEOUT_SECONDS)
     urls = ForgeURLs()
+
     return new_files, item, urls
 
 
@@ -49,16 +42,30 @@ def main() -> None:
     load_dotenv(Path(PurePath(__file__).parents[1], ".env"))
     new_files, item, urls = construct_objects()
 
-    with requestium.Session(driver=webdriver.Chrome(options=configure_headless_chrome())) as s:
-        item.login(s, urls)
-        if os.environ.get("FG_GRAPH_SALES", "FALSE") == "TRUE":
-            graph_users(item.get_sales(s, urls))
-        if os.environ.get("FG_UPLOAD_BUILD", "TRUE") == "TRUE":
-            channel = ForgeReleaseChannel[os.environ.get("FG_RELEASE_CHANNEL", "LIVE").upper()]
-            item.upload_and_publish(s, urls, new_files, channel)
-        if os.environ.get("FG_README_UPDATE", "FALSE") == "TRUE":
-            readme_text = build_processing.get_readme(new_files, no_images=os.environ.get("FG_README_NO_IMAGES", "FALSE") == "TRUE")
-            item.update_description(s, urls, readme_text)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True, args=["--window-size=1280,1024"])
+
+        context = browser.new_context(
+            user_agent=get_user_agent(),
+            viewport=ViewportSize(width=1280, height=1024),
+        )
+
+        page = context.new_page()
+
+        try:
+            headers = item.login(page, context, urls)
+
+            if get_bool_env("FG_UPLOAD_BUILD", default=True):
+                channel = ForgeReleaseChannel[os.environ.get("FG_RELEASE_CHANNEL", "LIVE").upper()]
+                item.upload_and_publish(headers, urls, new_files, channel)
+
+            if get_bool_env("FG_README_UPDATE", default=False):
+                readme_text = build_processing.get_readme(new_files, no_images=get_bool_env("FG_README_NO_IMAGES", default=False))
+                item.update_description(page, context, urls, readme_text)
+
+        finally:
+            context.close()
+            browser.close()
 
 
 if __name__ == "__main__":
