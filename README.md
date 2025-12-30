@@ -10,21 +10,17 @@ It is intended for use in CI release workflows such as one I
 use [here](https://github.com/FG-Unofficial-Developers-Guild/FG-CoreRPG-Extraplanar-Containers/blob/main/.github/workflows/release.yml).
 
 > [!WARNING]
-> At the moment, this will only work for the first page of 100 items found on a Forge account.
-
-> [!WARNING]
-> Markdown parsing is not quite as permissive as GitHub. If you use tables, you must have an empty line directly before
-> them.
+> Markdown parsing is not quite as permissive as GitHub.
+> If you use tables, you must have an empty line directly before them.
 
 > [!WARNING]
 > FG Forge does not allow inline images. To work around this, images are replaced by links using the image's alt text.
-> To ensure this can work, be sure to configure alt text on your README images and reference them via URL (not relative
-> file paths).
+> To ensure this can work, be sure to configure alt text on your README images and reference them via URL (not relative file paths).
 
 ## Getting Started / Before Using
 
-To run this code, you'll need to have Python 3.11, 3.12, or 3.13 installed on your machine. You'll also need to
-install the required packages by running the following commands from inside the project folder:
+To run this code, you'll need to have Python 3.11, 3.12, 3.13, or 3.14 installed on your machine.
+You'll also need to install the required packages by running the following commands from inside the project folder:
 
 ```shell
 pip install -U pip uv
@@ -74,8 +70,12 @@ FG_README_UPDATE=FALSE
 FG_README_NO_IMAGES=FALSE
 ```
 
-3. Run the following command from inside the project folder:
+3. Run one of the following commands from inside the project folder:
 
 ```shell
 fg-forge-uploader
+```
+
+```shell
+python -m src.main
 ```
