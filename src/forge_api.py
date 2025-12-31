@@ -5,7 +5,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, TypedDict
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -119,7 +119,8 @@ def _wait_for_element(page: Page, selector: str, timeout: float, element_descrip
         description = element_description or selector
         error_msg = f"{description} not found"
         raise PlaywrightTimeoutError(error_msg)
-    return cast("ElementHandle", element)
+    else:
+        return element
 
 
 @dataclass(frozen=True)
