@@ -1,12 +1,12 @@
 """Tests for forge_api."""
-
+import re
 from unittest.mock import ANY, Mock
 
 import pytest
 from patchright.sync_api import BrowserContext, Page, Response
 from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
 
-from src.forge_api import ForgeCredentials, ForgeItem, ForgeLoginError, ForgeURLs
+from src.forge_api import ForgeCredentials, ForgeItem, ForgeLoginError, ForgeURLs, _wait_for_element
 from src.shared_constants import get_user_agent
 
 
@@ -20,6 +20,112 @@ def credentials() -> ForgeCredentials:
 def urls() -> ForgeURLs:
     """Create ForgeURLs instance."""
     return ForgeURLs()
+
+
+class TestWaitForElement:
+    """Tests for _wait_for_element utility function."""
+
+    @pytest.mark.parametrize(
+        ("selector", "timeout"),
+        [
+            ("button#submit", 5),
+            (
+                "div.container",
+                10,
+            ),
+            ("input[name='username']", 1.5),
+            ("//a[@class='link']", 0.5),
+            ("select[name='items-table_length']", 7.0),
+        ],
+    )
+    def test_element_found_successfully(
+        self,
+        selector: str,
+        timeout: float,
+    ) -> None:
+        """Test that element is returned when found within timeout."""
+        mock_page = Mock(spec=["wait_for_selector"])
+        mock_element = Mock(spec=["inner_text", "click", "fill"])
+        mock_page.wait_for_selector.return_value = mock_element
+
+        result = _wait_for_element(mock_page, selector, timeout)
+
+        assert result == mock_element
+        mock_page.wait_for_selector.assert_called_once_with(selector, timeout=timeout * 1000)
+
+    @pytest.mark.parametrize(
+        ("selector", "timeout", "element_description", "expected_error"),
+        [
+            ("button#submit", 5.0, "Submit button", "Submit button not found"),
+            ("div.container", 10.0, "Container div", "Container div not found"),
+            ("input[name='username']", 7.0, "Username field", "Username field not found"),
+            ("//a[@id='manage-item-tab']", 3.0, "Manage item tab", "Manage item tab not found"),
+        ],
+    )
+    def test_element_not_found_with_custom_description(
+        self,
+        selector: str,
+        timeout: float,
+        element_description: str,
+        expected_error: str,
+    ) -> None:
+        """Test that PlaywrightTimeoutError is raised with custom description when element not found."""
+        mock_page = Mock(spec=["wait_for_selector"])
+        mock_page.wait_for_selector.return_value = None
+
+        with pytest.raises(PlaywrightTimeoutError, match=expected_error):
+            _wait_for_element(mock_page, selector, timeout, element_description)
+
+        mock_page.wait_for_selector.assert_called_once_with(selector, timeout=timeout * 1000)
+
+    @pytest.mark.parametrize(
+        ("selector", "timeout"),
+        [
+            ("button#submit", 5.0),
+            ("div.container", 10.0),
+            ("input[name='username']", 7.0),
+            ("//a[@class='registerbtn']", 3.5),
+        ],
+    )
+    def test_element_not_found_without_custom_description(
+        self,
+        selector: str,
+        timeout: float,
+    ) -> None:
+        """Test that PlaywrightTimeoutError is raised with selector as description when element not found and no description provided."""
+        mock_page = Mock(spec=["wait_for_selector"])
+        mock_page.wait_for_selector.return_value = None
+
+        with pytest.raises(PlaywrightTimeoutError, match=re.escape(f"{selector} not found")):
+            _wait_for_element(mock_page, selector, timeout)
+
+        mock_page.wait_for_selector.assert_called_once_with(selector, timeout=timeout * 1000)
+
+    @pytest.mark.parametrize(
+        "timeout",
+        [
+            0.1,
+            0.5,
+            1,
+            7.0,
+            15.5,
+            30.0,
+            30,
+        ],
+    )
+    def test_timeout_conversion_to_milliseconds(
+        self,
+        timeout: float,
+    ) -> None:
+        """Test that timeout in seconds is correctly converted to milliseconds."""
+        mock_page = Mock(spec=["wait_for_selector"])
+        mock_element = Mock()
+        mock_page.wait_for_selector.return_value = mock_element
+        selector = "div.test"
+
+        _wait_for_element(mock_page, selector, timeout)
+
+        mock_page.wait_for_selector.assert_called_once_with(selector, timeout=timeout * 1000)
 
 
 class TestForgeCredentials:
