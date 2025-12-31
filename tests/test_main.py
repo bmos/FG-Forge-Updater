@@ -8,8 +8,9 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
+from src.file_handling import resolve_file_paths
 from src.forge_api import ForgeItem, ForgeReleaseChannel, ForgeURLs
-from src.main import construct_objects, get_bool_env, main, resolve_file_paths
+from src.main import construct_objects, get_bool_env, main
 
 
 class TestGetBoolEnv:
@@ -416,7 +417,7 @@ class TestMain:
 
     @pytest.mark.usefixtures("_mock_load_dotenv", "mock_construct_objects", "mock_playwright")
     @patch("src.main.get_bool_env")
-    @patch("src.main.build_processing.get_readme")
+    @patch("src.main.get_readme")
     def test_main_readme_only(
         self,
         mock_get_readme: Mock,
@@ -441,7 +442,7 @@ class TestMain:
     @pytest.mark.usefixtures("_mock_load_dotenv", "mock_construct_objects", "mock_playwright")
     @patch("src.main.os.environ.get")
     @patch("src.main.get_bool_env")
-    @patch("src.main.build_processing.get_readme")
+    @patch("src.main.get_readme")
     def test_main_both_operations(
         self,
         mock_get_readme: Mock,
