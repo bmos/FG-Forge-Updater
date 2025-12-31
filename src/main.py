@@ -44,7 +44,7 @@ def main() -> None:
     new_files, item, urls = construct_objects()
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=["--window-size=1280,1024"])
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(
             user_agent=get_user_agent(),
             viewport=ViewportSize(width=1280, height=1024),
