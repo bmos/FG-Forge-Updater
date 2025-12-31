@@ -411,7 +411,8 @@ class TestMain:
         main()
 
         mock_item.login.assert_called_once()
-        mock_item.upload_and_publish.assert_called_once()
+        mock_item.upload_build.assert_called_once()
+        mock_item.set_build_channel.assert_called_once()
         mock_item.update_description.assert_not_called()
         mock_context.close.assert_called_once()
 
@@ -435,7 +436,8 @@ class TestMain:
         main()
 
         mock_item.login.assert_called_once()
-        mock_item.upload_and_publish.assert_not_called()
+        mock_item.upload_build.assert_not_called()
+        mock_item.set_build_channel.assert_not_called()
         mock_item.update_description.assert_called_once()
         mock_get_readme.assert_called_once()
 
@@ -460,7 +462,8 @@ class TestMain:
         main()
 
         mock_item.login.assert_called_once()
-        mock_item.upload_and_publish.assert_called_once()
+        mock_item.upload_build.assert_called_once()
+        mock_item.set_build_channel.assert_called_once()
         mock_item.update_description.assert_called_once()
 
     @pytest.mark.usefixtures("_mock_load_dotenv", "mock_construct_objects", "mock_playwright")
@@ -500,5 +503,5 @@ class TestMain:
 
         main()
 
-        call_args = mock_item.upload_and_publish.call_args
+        call_args = mock_item.set_build_channel.call_args
         assert call_args[0][3] == ForgeReleaseChannel.TEST

@@ -56,7 +56,8 @@ def main() -> None:
 
             if get_bool_env("FG_UPLOAD_BUILD", default=True):
                 channel = ForgeReleaseChannel[os.environ.get("FG_RELEASE_CHANNEL", "LIVE").upper()]
-                item.upload_and_publish(headers, urls, new_files, channel)
+                build_id = item.upload_build(headers, urls, new_files)
+                item.set_build_channel(headers, urls, build_id, channel)
 
             if get_bool_env("FG_README_UPDATE", default=False):
                 readme_text = get_readme(new_files, no_images=get_bool_env("FG_README_NO_IMAGES", default=False))

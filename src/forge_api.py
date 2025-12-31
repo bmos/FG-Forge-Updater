@@ -119,8 +119,7 @@ def _wait_for_element(page: Page, selector: str, timeout: float, element_descrip
         description = element_description or selector
         error_msg = f"{description} not found"
         raise PlaywrightTimeoutError(error_msg)
-    else:
-        return element
+    return element
 
 
 @dataclass(frozen=True)
@@ -190,18 +189,11 @@ class ForgeItem:
         logger.info("Logged in as %s", self.creds.username)
         return self._get_auth_headers(context, urls)
 
-    def upload_and_publish(self, headers: dict[str, str], urls: ForgeURLs, new_files: list[Path], channel: ForgeReleaseChannel) -> None:
-        """Upload and publish a new build to the FG Forge using direct API calls."""
+    def upload_build(self, headers: dict[str, str], urls: ForgeURLs, new_files: list[Path]) -> str:
+        """Upload a new build to the FG Forge and retrieve latest build id."""
         logger.info("Uploading new build to Forge item")
         self.upload_build_direct(headers, urls, new_files)
-
-        if channel is ForgeReleaseChannel.NONE:
-            logger.info("Target channel is set to none, not setting new build to a release channel.")
-            return
-
-        logger.info("Assigning new build to Forge channel: %s: %s", channel, channel.value)
-        latest_build_id = max(self.get_item_builds(headers, urls), key=lambda build: int(build["build_num"]))["id"]
-        self.set_build_channel(headers, urls, latest_build_id, channel)
+        return max(self.get_item_builds(headers, urls), key=lambda build: int(build["build_num"]))["id"]
 
     def upload_build_direct(self, headers: dict[str, str], urls: ForgeURLs, new_builds: list[Path]) -> None:
         """Upload new build(s) to this Forge item via direct API call."""
@@ -235,10 +227,11 @@ class ForgeItem:
         response.raise_for_status()
         return response.json()["data"]
 
-    def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> bool:
+    def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> None:
         """Set the build channel of this Forge item to the specified value, returning True on 200 OK."""
+        logger.info("Assigning new build to Forge channel: %s: %s", channel, channel.value)
         response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}", headers=headers, timeout=30)
-        return response.ok
+        response.raise_for_status()
 
     def replace_description(self, page: Page, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""
