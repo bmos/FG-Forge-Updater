@@ -1,4 +1,5 @@
 """Tests for forge_api."""
+
 import re
 from unittest.mock import ANY, Mock
 
