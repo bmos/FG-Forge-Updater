@@ -12,7 +12,7 @@ dependencies = [
     "mdformat-footnote~=0.1.2",
     "mdformat-frontmatter~=2.0.8",
     "mdformat-gfm~=1.0.0",
-    "patchright~=1.56.0",
+    "patchright~=1.57.2",
     "python-dotenv~=1.2.1",
     "requests~=2.32.5",
 ]
