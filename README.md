@@ -19,7 +19,7 @@ use [here](https://github.com/FG-Unofficial-Developers-Guild/FG-CoreRPG-Extrapla
 
 ## Getting Started / Before Using
 
-To run this code, you'll need to have Python 3.11, 3.12, 3.13, or 3.14 installed on your machine.
+To run this code, you'll need to have Python 3.11+ installed on your machine.
 You'll also need to install the required packages by running the following commands from inside the project folder:
 
 ```shell
