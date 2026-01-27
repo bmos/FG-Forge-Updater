@@ -285,7 +285,7 @@ jobs:
           name: python-coverage-comment-action
           path: python-coverage-comment-action.txt
 
-  pre-commit:
+  prek:
     runs-on: ubuntu-latest
     needs:
       - bandit
@@ -304,8 +304,10 @@ jobs:
           allowed-endpoints: >
             files.pythonhosted.org:443
             github.com:443
+            api.github.com:443
             proxy.golang.org:443
             pypi.org:443
+            release-assets.githubusercontent.com:443
 
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
 
@@ -318,14 +320,4 @@ jobs:
 
       - run: uv pip install --system .[dev]
 
-      - id: cache-pre-commit
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
-        with:
-          path: .pre-commit-cache
-          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pyproject.toml') }}
-
-      - run: |
-          pre-commit install
-          pre-commit run --all-files
-        env:
-          PRE_COMMIT_HOME: .pre-commit-cache
+      - uses: j178/prek-action@9d6a3097e0c1865ecce00cfb89fe80f2ee91b547

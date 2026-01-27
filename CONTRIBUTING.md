@@ -21,7 +21,7 @@ uv pip install -e .[dev]
 ```
 
 ```shell
-pre-commit install
+prek install
 ```
 
 ## Code Submissions
