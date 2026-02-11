@@ -53,8 +53,8 @@ Uploads new builds to FantasyGrounds Forge and updates item page descriptions wi
 ### Getting Started
 
 To run this code, you'll need to have Python 3.11+ installed on your machine.
-These instructions also assume you have `uv` installed in your environment.
-You can install `uv`  like this:
+These instructions also assume you have [uv](https://docs.astral.sh/uv/) installed in your environment.
+You can install uv  like this:
 
 ```shell
 python -m pip install -U pip uv
