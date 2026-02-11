@@ -53,23 +53,11 @@ Uploads new builds to FantasyGrounds Forge and updates item page descriptions wi
 ### Getting Started
 
 To run this code, you'll need to have Python 3.11+ installed on your machine.
-You'll also need to install the required packages by running the following commands from inside the project folder:
+These instructions also assume you have `uv` installed in your environment.
+You can install `uv`  like this:
 
 ```shell
-pip install -U pip uv
-```
-
-```shell
-uv venv
-```
-
-```shell
-source .venv/bin/activate # Linux or macOS
-.venv\Scripts\activate # Windows
-```
-
-```shell
-uv pip install .
+python -m pip install -U pip uv
 ```
 
 ### Publishing a Build
@@ -112,12 +100,8 @@ FG_README_UPDATE=FALSE
 FG_README_NO_IMAGES=FALSE
 ```
 
-3. Run one of the following commands from inside the project folder:
+3. Run the following command from inside the project folder:
 
 ```shell
-fg-forge-uploader
-```
-
-```shell
-python -m src.main
+uv run src/main.py
 ```
