@@ -1,0 +1,64 @@
+name: FG-Forge-Updater
+
+description: Publish a Build on FantasyGrounds Forge
+
+inputs:
+  release-channel:
+    description: The release channel to target ('Live', 'Test', or 'None') Default: 'Live'
+    required: false
+    default: 'Live'
+  item-id:
+    description: The item number from the FG Forge Store
+    required: true
+  username:
+    description: Your FG Forge username
+    required: true
+  password:
+    description: Your FG Forge username
+    required: true
+  file-path:
+    description: File path of the ext or mod file
+    required: true
+  update-readme:
+    description: Replace the Forge description with README.md? ('TRUE', 'FALSE') Default: 'TRUE'
+    required: false
+    default: 'TRUE'
+
+runs:
+  runs:
+    using: 'composite'
+
+  steps:
+    - uses: actions/checkout@v6
+      with:
+        repository: 'bmos/FG-Forge-Updater'
+        ref: 'v2'
+        path: 'fg-updater-internal'
+
+    - uses: actions/setup-python@v6
+      with:
+        python-version: "3.14"
+        cache: 'pip'
+
+    - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
+
+    - shell: bash
+      run: |
+        uv pip install --system -e "$GITHUB_WORKSPACE/fg-updater-internal"
+
+    - shell: bash
+      run: |
+        python -m patchright install
+
+    - env:
+        FG_RELEASE_CHANNEL: ${{ inputs.release-channel }}
+        FG_ITEM_ID: ${{ inputs.item-id }}
+        FG_USER_NAME: ${{ inputs.username }}
+        FG_USER_PASS: ${{ inputs.password }}
+        FG_UL_FILE: ${{ inputs.file-path }}
+        FG_README_UPDATE: ${{ inputs.update-readme }}
+        FG_UPLOAD_BUILD: "TRUE"
+        PYTHONPATH: "$GITHUB_WORKSPACE/fg-updater-internal"
+      shell: bash
+      run: |
+        python -m src.main
