@@ -64,10 +64,10 @@ python -m pip install -U pip uv
 
 1. Put the ext file to upload into the project folder.
 
-2. [OPTIONAL] Create a `.env` file in the project folder containing the following (but with your information):
+2. Create a `.env` file in the project folder containing the following (but with your information):
 
 > [!NOTE]
-> You can add these values directly to your environment variables.
+> You can add these values directly to your environment variables instead of in a .env file, if you prefer.
 > If no environment variables are set and no .env file is found, command line will prompt for Forge login credentials and item ID.
 > Build will be uploaded and added to LIVE. Description will not be updated.
 
