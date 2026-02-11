@@ -3,11 +3,9 @@
 [![Coverage badge](https://raw.githubusercontent.com/bmos/FG-Forge-Updater/python-coverage-comment-action-data/badge.svg)](https://htmlpreview.github.io/?https://github.com/bmos/FG-Forge-Updater/blob/python-coverage-comment-action-data/htmlcov/index.html)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/10361/badge)](https://www.bestpractices.dev/projects/10361)
 
-# Forge Updater
+# Forge 
 
 Uploads new builds to FantasyGrounds Forge and updates item page descriptions without requiring user input.
-It is intended for use in CI release workflows such as one I
-use [here](https://github.com/FG-Unofficial-Developers-Guild/FG-CoreRPG-Extraplanar-Containers/blob/main/.github/workflows/release.yml).
 
 > [!WARNING]
 > Markdown parsing is not quite as permissive as GitHub.
@@ -17,7 +15,35 @@ use [here](https://github.com/FG-Unofficial-Developers-Guild/FG-CoreRPG-Extrapla
 > FG Forge does not allow inline images. To work around this, images are replaced by links using the image's alt text.
 > To ensure this can work, be sure to configure alt text on your README images and reference them via URL (not relative file paths).
 
-## Getting Started / Before Using
+## Usage (GitHub Action)
+
+<!-- start usage -->
+```yaml
+    - uses: bmos/FG-Forge-Updater@v2
+      with:
+        # The release channel you want to publish to ('Live' or 'Test'). Defaults to 'Live'.
+        release-channel: 'Live'
+
+        # The item id of the forge listing you want to publish to. **Required**.
+        item-id: 34
+
+        # The FantasyGrounds username to use when logging in. **Required**.
+        username: 'bmos'
+
+        # The FantasyGrounds password to use when logging in. **Required**.
+        password: 'TopSecretP@ssword'
+
+        # The path to the build file (ending in .ext or .mod). **Required**.
+        file-path: 'FG-Aura-Effect.ext'
+
+        # Whether to update the Forge item description from the contents of your README.md file. Defaults to 'TRUE'.
+        update-readme: 'TRUE'
+```
+<!-- end usage -->
+
+## Usage (manual)
+
+### Getting Started
 
 To run this code, you'll need to have Python 3.11+ installed on your machine.
 You'll also need to install the required packages by running the following commands from inside the project folder:
@@ -39,7 +65,7 @@ source .venv/bin/activate # Linux or macOS
 uv pip install .
 ```
 
-## Usage
+### Publishing a Build
 
 1. Put the ext file to upload into the project folder.
 
