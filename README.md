@@ -42,7 +42,7 @@ Uploads new builds to FantasyGrounds Forge and updates item page descriptions wi
         # Optional, defaults to 'Live'.
         release-channel: 'Live'
 
-        # Whether to update the Forge item description from the contents of your README.md file.
+        # Whether to update the Forge item description from the contents of README.md.
         # Optional, defaults to 'TRUE'.
         update-readme: 'TRUE'
 ```
