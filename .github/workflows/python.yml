@@ -48,8 +48,12 @@ jobs:
 
       - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
 
-      - run: |
-          uv pip install --system --resolution ${{ matrix.resolution }} -e .[dev]
+      - run: >-
+          uv sync
+          --upgrade
+          --no-default-groups
+          --group test-coverage
+          --resolution ${{ matrix.resolution }}
 
       - id: cache-pytest
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
@@ -57,7 +61,7 @@ jobs:
           path: .pytest_cache
           key: pytest-${{ matrix.python-version }}-${{ matrix.os }}-${{ matrix.resolution }}-${{ hashFiles('pyproject.toml') }}
 
-      - run: pytest
+      - run: uv run pytest
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.os }}.${{ matrix.python-version }}.${{ matrix.resolution }}"
 
@@ -89,7 +93,11 @@ jobs:
 
       - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
 
-      - run: uv pip install --system .[dev]
+      - run: >-
+          uv sync
+          --upgrade
+          --no-default-groups
+          --group lint
 
       - id: cache-ruff
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
@@ -98,7 +106,11 @@ jobs:
           key: ruff-${{ hashFiles('pyproject.toml') }}
 
       - id: run-ruff
-        run: ruff format --diff .
+        run: >-
+          uv run
+          ruff format
+          --diff
+          .
 
   ruff-check:
     runs-on: ubuntu-latest
@@ -126,7 +138,11 @@ jobs:
 
       - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
 
-      - run: uv pip install --system .[dev]
+      - run: >-
+          uv sync
+          --upgrade
+          --no-default-groups
+          --group lint
 
       - id: cache-ruff
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
@@ -135,8 +151,12 @@ jobs:
           key: ruff-${{ hashFiles('pyproject.toml') }}
 
       - id: run-ruff-sarif
-        run: |
-          ruff check --output-format=sarif -o results.sarif .
+        run: >-
+          uv run
+          ruff check
+          --output-format=sarif
+          -o results.sarif
+          .
 
       - uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7
         if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-ruff-sarif.outcome)
@@ -145,8 +165,11 @@ jobs:
 
       - id: run-ruff
         if: failure() && contains('["failure"]', steps.run-ruff-sarif.outcome)
-        run: |
-          ruff check --output-format=github .
+        run: >-
+          uv run
+          ruff check
+          --output-format=github
+          .
 
   bandit:
     runs-on: ubuntu-latest
@@ -174,11 +197,22 @@ jobs:
 
       - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
 
-      - run: uv pip install --system .[dev]
+      - run: >-
+          uv sync
+          --upgrade
+          --no-default-groups
+          --group security
 
       - id: run-bandit-sarif
-        run: |
-          bandit --confidence-level 'medium' --severity-level 'medium' --recursive 'src' --format 'sarif' --output 'results.sarif'
+        run: >-
+          uv run
+          bandit
+          --confidence-level 'medium'
+          --severity-level 'medium'
+          --recursive 'parsons'
+          --exclude '**/vendor/*'
+          --format 'sarif'
+          --output 'results.sarif'
 
       - uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7
         if: ( success() || failure() ) && contains('["success", "failure"]', steps.run-bandit-sarif.outcome)
@@ -187,8 +221,12 @@ jobs:
 
       - id: run-bandit
         if: failure() && contains('["failure"]', steps.run-bandit-sarif.outcome)
-        run: |
-          bandit --confidence-level 'medium' --severity-level 'medium' --recursive 'src'
+        run: >-
+          uv run
+          bandit
+          --confidence-level 'medium'
+          --severity-level 'medium'
+          --recursive 'src'
 
   ssort:
     runs-on: ubuntu-latest
@@ -212,9 +250,17 @@ jobs:
 
       - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
 
-      - run: uv pip install --system -e .[dev]
+      - run: >-
+          uv sync
+          --upgrade
+          --no-default-groups
+          --group lint
 
-      - run: ssort  --check --diff .
+      - run: >-
+          uv run
+          ssort
+          --check
+          --diff .
 
   mypy:
     runs-on: ubuntu-latest
@@ -238,7 +284,11 @@ jobs:
 
       - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
 
-      - run: uv pip install --system -e .[dev]
+      - run: >-
+          uv sync
+          --upgrade
+          --no-default-groups
+          --group types
 
       - id: cache-mypy
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
@@ -246,7 +296,10 @@ jobs:
           path: .mypy_cache
           key: ${{ runner.os }}-mypy-${{ hashFiles('pyproject.toml') }}
 
-      - run: mypy .
+      - run: >-
+          uv run
+          mypy
+          .
 
   coverage:
     runs-on: ubuntu-latest
@@ -316,7 +369,11 @@ jobs:
 
       - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
 
-      - run: uv pip install --system .[dev]
+      - run: >-
+          uv sync
+          --upgrade
+          --no-default-groups
+          --group pre-commit
 
       - id: cache-pre-commit
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
@@ -324,8 +381,9 @@ jobs:
           path: .pre-commit-cache
           key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pyproject.toml') }}
 
-      - run: |
-          pre-commit install
-          pre-commit run --all-files
+      - run: >-
+          uv run
+          pre-commit run
+          --all-files
         env:
           PRE_COMMIT_HOME: .pre-commit-cache
