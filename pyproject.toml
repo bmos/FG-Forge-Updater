@@ -17,27 +17,49 @@ dependencies = [
     "requests~=2.32.5",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "bandit[sarif]==1.9.2",
-    "mypy~=1.19.0",
-    "pre-commit~=4.5.0",
-    "pytest-cov~=7.0.0",
-    "pytest-xdist~=3.8.0",
-    "pytest~=9.0.2",
-    "ruff==0.14.9",
-    "ssort==0.16.0",
-    "types-Markdown~=3.10.0.20251106",
-    "types-beautifulsoup4~=4.12.0.20250516",
-    "types-requests~=2.32.4.20250913",
-]
-
 [project.scripts]
 fg-forge-updater = "src.main:main"
 
 [build-system]
-requires = ["setuptools>=80.0"]
+requires = [
+    "build>=1.4",
+    "setuptools>=82.0",
+]
 build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    {include-group = "lint"},
+    {include-group = "pre-commit"},
+    {include-group = "security"},
+    {include-group = "test-coverage"},
+    {include-group = "types"},
+]
+lint = [
+    "ruff==0.15.1",
+    "ssort==0.16.0",
+]
+pre-commit = [
+    "pre-commit~=4.5.0",
+]
+security = [
+    "bandit[sarif]==1.9.3",
+]
+test-coverage = [
+    "pytest-cov~=7.0.0",
+    {include-group = "test"},
+]
+test = [
+    "pytest~=9.0.2",
+    "pytest-recording~=0.13.4",
+    "pytest-xdist~=3.8.0",
+]
+types = [
+    "mypy~=1.19.0",
+    "types-beautifulsoup4~=4.12.0.20250516",
+    "types-Markdown~=3.10.0.20251106",
+    "types-requests~=2.32.4.20250913",
+]
 
 [tool]
 
