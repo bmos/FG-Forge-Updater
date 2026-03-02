@@ -14,9 +14,6 @@ permissions: read-all
 jobs:
   lint:
     uses: bmos/bmos/.github/workflows/python-lint.yml@main
-    with:
-      src_folder: "src"
-      python_version: "3.13"
     permissions:
       contents: write
       security-events: write
@@ -25,8 +22,6 @@ jobs:
     uses: bmos/bmos/.github/workflows/python-test.yml@main
     needs: lint
     with:
-      src_folder: "src"
-      test_folder: "tests"
       install_patchright: true
       python_version: "['3.11', '3.12', '3.13', '3.14']"
     permissions:
