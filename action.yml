@@ -35,9 +35,9 @@ runs:
 
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       with:
-        repository: 'bmos/FG-Forge-Updater'
-        ref: 'v2'
-        path: 'fg-updater-internal'
+        repository: bmos/FG-Forge-Updater
+        ref: v2
+        path: fg-updater-internal
 
     - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
       with:
@@ -55,6 +55,6 @@ runs:
         FG_USER_PASS: ${{ inputs.password }}
         FG_UL_FILE: ${{ inputs.file-path }}
         FG_README_UPDATE: ${{ inputs.update-readme }}
-        FG_UPLOAD_BUILD: "TRUE"
+        FG_UPLOAD_BUILD: 'TRUE'
       shell: bash
       run: uv run src/main.py
