@@ -25,30 +25,28 @@ inputs:
     default: 'TRUE'
 
 runs:
-  runs:
-    using: 'composite'
+  using: composite
 
   steps:
-    - uses: actions/checkout@v6
+    - uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594
+      with:
+        disable-sudo: true
+        egress-policy: audit
+
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       with:
         repository: 'bmos/FG-Forge-Updater'
         ref: 'v2'
         path: 'fg-updater-internal'
 
-    - uses: actions/setup-python@v6
+    - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
       with:
-        python-version: "3.14"
-        cache: 'pip'
-
-    - uses: install-pinned/uv@87c2872ebb798b99a5ada5669f99ec2680716ae5
-
-    - shell: bash
-      run: |
-        uv pip install --system -e "$GITHUB_WORKSPACE/fg-updater-internal"
+        python-version: 3.14
+        activate-environment: true
+        working-directory: $GITHUB_WORKSPACE/fg-updater-internal
 
     - shell: bash
-      run: |
-        python -m patchright install
+      run: uv run patchright install --with-deps
 
     - env:
         FG_RELEASE_CHANNEL: ${{ inputs.release-channel }}
@@ -58,7 +56,5 @@ runs:
         FG_UL_FILE: ${{ inputs.file-path }}
         FG_README_UPDATE: ${{ inputs.update-readme }}
         FG_UPLOAD_BUILD: "TRUE"
-        PYTHONPATH: "$GITHUB_WORKSPACE/fg-updater-internal"
       shell: bash
-      run: |
-        python -m src.main
+      run: uv run src/main.py
