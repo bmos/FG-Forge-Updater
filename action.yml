@@ -42,10 +42,18 @@ runs:
       with:
         python-version: 3.14
         activate-environment: true
-        working-directory: $GITHUB_WORKSPACE/fg-updater-internal
+        working-directory: fg-updater-internal
 
-    - shell: bash
-      run: uv run patchright install --with-deps
+    - run: uv sync --upgrade
+      shell: bash
+      working-directory: fg-updater-internal
+
+    - run: uv run patchright install --with-deps
+      shell: bash
+      working-directory: fg-updater-internal
+
+    - run: mv ${{ inputs.file-path }} fg-updater-internal/${{ inputs.file-path }}
+      shell: bash
 
     - env:
         FG_RELEASE_CHANNEL: ${{ inputs.release-channel }}
@@ -57,3 +65,4 @@ runs:
         FG_UPLOAD_BUILD: 'TRUE'
       shell: bash
       run: uv run src/main.py
+      working-directory: fg-updater-internal
