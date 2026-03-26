@@ -15,7 +15,7 @@ dependencies = [
     "mdformat-gfm-alerts~=2.0.0",
     "patchright~=1.58.2",
     "python-dotenv~=1.2.2",
-    "requests~=2.32.5",
+    "requests~=2.33.0",
 ]
 
 [project.scripts]
