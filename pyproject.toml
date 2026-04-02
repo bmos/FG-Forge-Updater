@@ -158,3 +158,6 @@ exclude_also = [
     'if __name__ == "__main__":',
     "main\\(\\)",
 ]
+
+[tool.mypy]
+local_partial_types = true
