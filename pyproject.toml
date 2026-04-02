@@ -161,3 +161,4 @@ exclude_also = [
 
 [tool.mypy]
 local_partial_types = true
+strict_bytes = true
