@@ -160,9 +160,5 @@ exclude_also = [
 ]
 
 [tool.mypy]
-
-[[tool.mypy.overrides]]
-module = [
-    "requestium",
-]
-ignore_missing_imports = true
+local_partial_types = true
+strict_bytes = true
