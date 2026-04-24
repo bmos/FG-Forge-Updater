@@ -37,11 +37,11 @@ dev = [
     {include-group = "types"},
 ]
 lint = [
-    "ruff==0.15.7",
+    "ruff==0.15.11",
     "ssort==0.16.0",
 ]
 pre-commit = [
-    "pre-commit~=4.5.1",
+    "pre-commit~=4.6.0",
 ]
 security = [
     "bandit[sarif]==1.9.4",
@@ -51,12 +51,12 @@ test-coverage = [
     {include-group = "test"},
 ]
 test = [
-    "pytest~=9.0.2",
+    "pytest~=9.0.3",
     "pytest-recording~=0.13.4",
     "pytest-xdist~=3.8.0",
 ]
 types = [
-    "mypy~=1.20.0",
+    "mypy~=1.20.2",
     "types-beautifulsoup4~=4.12.0",
     "types-Markdown~=3.10.2",
     "types-requests~=2.33.0",
