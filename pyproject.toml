@@ -23,8 +23,8 @@ fg-forge-updater = "src.main:main"
 
 [build-system]
 requires = [
-    "build>=1.4",
-    "setuptools>=82.0",
+    "build>=1.5.0",
+    "setuptools>=82.0.1",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -37,7 +37,7 @@ dev = [
     {include-group = "types"},
 ]
 lint = [
-    "ruff==0.15.11",
+    "ruff==0.15.12",
     "ssort==0.16.0",
 ]
 pre-commit = [
@@ -56,7 +56,7 @@ test = [
     "pytest-xdist~=3.8.0",
 ]
 types = [
-    "mypy~=1.20.2",
+    "mypy~=2.0.0",
     "types-beautifulsoup4~=4.12.0",
     "types-Markdown~=3.10.2",
     "types-requests~=2.33.0",
