@@ -26,8 +26,10 @@ class BuildInfo(TypedDict):
 
     id: str
     build_num: str
-    upload_date: str
-    channel: str
+    is_active: str
+    location: str
+    channel_name: str
+    created_at: str
 
 
 class ForgeLoginError(Exception):
