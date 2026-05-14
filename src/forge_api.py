@@ -45,6 +45,10 @@ class ForgeUploadError(Exception):
     """Exception to be raised when file upload fails."""
 
 
+class ForgeChannelError(Exception):
+    """Exception to be raised when setting forge channel fails."""
+
+
 class ForgeReleaseChannel(Enum):
     """Constants representing the strings used to represent each release channel in build-management comboboxes."""
 
