@@ -9,8 +9,17 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 
 from src.file_handling import resolve_file_paths
-from src.forge_api import ForgeItem, ForgeReleaseChannel, ForgeURLs
+from src.forge_api import BuildInfo, ForgeItem, ForgeReleaseChannel, ForgeURLs
 from src.main import construct_objects, get_bool_env, main
+
+FAUX_BUILD = BuildInfo(
+    id="13612",
+    build_num="26",
+    is_active="1",
+    location="1",
+    channel_name="Live",
+    created_at="2026-05-14 23:15:20",
+)
 
 
 class TestGetBoolEnv:
@@ -407,12 +416,14 @@ class TestMain:
         _, mock_context, _ = mock_playwright_setup
 
         mock_get_bool_env.side_effect = lambda key, **_kwargs: key == "FG_UPLOAD_BUILD"
+        mock_item.upload_build.return_value = FAUX_BUILD
 
         main()
 
         mock_item.login.assert_called_once()
         mock_item.upload_build.assert_called_once()
         mock_item.set_build_channel.assert_called_once()
+        mock_item.check_build_channel.assert_called_once()
         mock_item.update_description.assert_not_called()
         mock_context.close.assert_called_once()
 
@@ -430,14 +441,15 @@ class TestMain:
         _, mock_item, _ = mock_forge_objects
         _, _mock_context, _ = mock_playwright_setup
 
-        mock_get_readme.return_value = "<p>Test readme</p>"
         mock_get_bool_env.side_effect = lambda key, **_kwargs: key == "FG_README_UPDATE"
+        mock_get_readme.return_value = "<p>Test readme</p>"
 
         main()
 
         mock_item.login.assert_called_once()
         mock_item.upload_build.assert_not_called()
         mock_item.set_build_channel.assert_not_called()
+        mock_item.check_build_channel.assert_not_called()
         mock_item.update_description.assert_called_once()
         mock_get_readme.assert_called_once()
 
@@ -455,15 +467,17 @@ class TestMain:
         """Test main function with both upload and readme update enabled."""
         _, mock_item, _ = mock_forge_objects
 
-        mock_get_readme.return_value = "<p>Test readme</p>"
         mock_get_bool_env.return_value = True
         mock_env_get.return_value = "LIVE"
+        mock_item.upload_build.return_value = FAUX_BUILD
+        mock_get_readme.return_value = "<p>Test readme</p>"
 
         main()
 
         mock_item.login.assert_called_once()
         mock_item.upload_build.assert_called_once()
         mock_item.set_build_channel.assert_called_once()
+        mock_item.check_build_channel.assert_called_once()
         mock_item.update_description.assert_called_once()
 
     @pytest.mark.usefixtures("_mock_load_dotenv", "mock_construct_objects", "mock_playwright")
@@ -500,8 +514,12 @@ class TestMain:
 
         mock_env_get.side_effect = lambda key, default=None: "TEST" if key == "FG_RELEASE_CHANNEL" else default
         mock_get_bool_env.side_effect = lambda key, default=False: key == "FG_UPLOAD_BUILD"  # noqa: ARG005
+        mock_item.upload_build.return_value = FAUX_BUILD
 
         main()
 
         call_args = mock_item.set_build_channel.call_args
+        assert call_args[0][3] == ForgeReleaseChannel.TEST
+
+        call_args = mock_item.check_build_channel.call_args
         assert call_args[0][3] == ForgeReleaseChannel.TEST

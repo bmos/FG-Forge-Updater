@@ -1,6 +1,6 @@
 [project]
 name = "fg-forge-updater"
-version = "2.0.0"
+version = "2.2.0"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }

@@ -5,7 +5,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -26,8 +26,10 @@ class BuildInfo(TypedDict):
 
     id: str
     build_num: str
-    upload_date: str
-    channel: str
+    is_active: str
+    location: str
+    channel_name: str
+    created_at: str
 
 
 class ForgeLoginError(Exception):
@@ -41,6 +43,10 @@ class ForgeLoginError(Exception):
 
 class ForgeUploadError(Exception):
     """Exception to be raised when file upload fails."""
+
+
+class ForgeChannelError(Exception):
+    """Exception to be raised when setting forge channel fails."""
 
 
 class ForgeReleaseChannel(Enum):
@@ -102,9 +108,16 @@ class ForgeCredentials:
         return content
 
 
+def _is_matching_build_channel(build: BuildInfo, channel: ForgeReleaseChannel) -> bool:
+    """Return True if the build channel matches the specified channel."""
+    return bool(build["channel_name"].upper() == str(channel.name))
+
+
 def _build_headers(cookies: list[Cookie], csrf_token: str) -> dict[str, str]:
     """Build request headers with cookies and CSRF token."""
-    cookie_header = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+    valid_cookies = (c for c in cookies if "name" in c and "value" in c)
+    cookie_header = "; ".join(f"{c['name']}={c['value']}" for c in valid_cookies)
+
     return {
         "Cookie": cookie_header,
         "X-CSRF-TOKEN": csrf_token,
@@ -119,6 +132,7 @@ def _wait_for_element(page: Page, selector: str, timeout: float, element_descrip
         description = element_description or selector
         error_msg = f"{description} not found"
         raise PlaywrightTimeoutError(error_msg)
+
     return element
 
 
@@ -134,6 +148,7 @@ class ForgeItem:
         """Get authentication headers with cookies and CSRF token."""
         cookies = context.cookies()
         csrf_token = self.creds.get_csrf_token(context, urls)
+
         return _build_headers(cookies, csrf_token)
 
     def _is_already_logged_in(self, page: Page, urls: ForgeURLs) -> bool:
@@ -143,6 +158,7 @@ class ForgeItem:
         try:
             alert_div = _wait_for_element(page, "div[class='alert alert-info text-center']", self.timeout, "Message confirming not logged in")
             return not alert_div.inner_text().__contains__("You are not logged in")
+
         except PlaywrightTimeoutError:
             return True
 
@@ -189,11 +205,13 @@ class ForgeItem:
         logger.info("Logged in as %s", self.creds.username)
         return self._get_auth_headers(context, urls)
 
-    def upload_build(self, headers: dict[str, str], urls: ForgeURLs, new_files: list[Path]) -> str:
+    def upload_build(self, headers: dict[str, str], urls: ForgeURLs, new_files: list[Path]) -> BuildInfo:
         """Upload a new build to the FG Forge and retrieve latest build id."""
         logger.info("Uploading new build to Forge item")
         self.upload_build_direct(headers, urls, new_files)
-        return max(self.get_item_builds(headers, urls), key=lambda build: int(build["build_num"]))["id"]
+        time.sleep(self.timeout)
+
+        return max(self.get_item_builds(headers, urls), key=lambda build: int(build["build_num"]))
 
     def upload_build_direct(self, headers: dict[str, str], urls: ForgeURLs, new_builds: list[Path]) -> None:
         """Upload new build(s) to this Forge item via direct API call."""
@@ -225,13 +243,45 @@ class ForgeItem:
         """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
         response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/data-table", headers=headers, timeout=30)
         response.raise_for_status()
+
         return response.json()["data"]
 
-    def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_id: str, channel: ForgeReleaseChannel) -> None:
+    def get_item_build(self, headers: dict[str, str], urls: ForgeURLs, build_num: str) -> BuildInfo:
+        """Retrieve a list of builds for this Forge item, with ID, build number, upload date, and current channel."""
+        builds = self.get_item_builds(headers, urls)
+        build = next((b for b in builds if b["build_num"] == build_num), None)
+        if not build:
+            err_msg = f"Build {build_num} not found"
+            raise ForgeChannelError(err_msg)
+
+        return build
+
+    def set_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build: BuildInfo, channel: ForgeReleaseChannel) -> None:
         """Set the build channel of this Forge item to the specified value, returning True on 200 OK."""
         logger.info("Assigning new build to Forge channel: %s: %s", channel, channel.value)
-        response = requests.post(f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build_id}/channels/{channel.value}", headers=headers, timeout=30)
-        response.raise_for_status()
+        url = f"{urls.API_CRAFTER_ITEMS}/{self.item_id}/builds/{build['id']}/channels/{channel.value}"
+        response = requests.post(url, headers=headers, timeout=30)
+
+        try:
+            response.raise_for_status()
+
+        except requests.exceptions.HTTPError as e:
+            err_msg = f"Failed to set build channel to {channel.name}"
+            raise ForgeChannelError(err_msg) from e
+
+    def check_build_channel(self, headers: dict[str, str], urls: ForgeURLs, build_num: "str", channel: ForgeReleaseChannel) -> Literal[True]:
+        """Determine the channel assigned to a specific build of this Forge item."""
+        logger.info("Determining Forge channel for build: %s", build_num)
+
+        build = self.get_item_build(headers, urls, build_num)
+        if not _is_matching_build_channel(build, channel):
+            found_build_channel = build["channel_name"].upper()
+            err_msg = f"Failed to set build channel of build {build_num} to {channel.name}, got {found_build_channel}"
+            raise ForgeChannelError(err_msg)
+
+        logger.info("Confirmed that build number %s of Forge item %s is set to the %s channel.", build_num, self.item_id, channel.name)
+
+        return True
 
     def replace_description(self, page: Page, description_text: str) -> None:
         """Replace the existing item description with a new HTML-formatted full description."""
