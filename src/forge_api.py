@@ -104,7 +104,8 @@ class ForgeCredentials:
 
 def _build_headers(cookies: list[Cookie], csrf_token: str) -> dict[str, str]:
     """Build request headers with cookies and CSRF token."""
-    cookie_header = "; ".join([f"{c['name']}={c['value']}" for c in cookies])
+    valid_cookies = (c for c in cookies if "name" in c and "value" in c)
+    cookie_header = "; ".join(f"{c['name']}={c['value']}" for c in valid_cookies)
     return {
         "Cookie": cookie_header,
         "X-CSRF-TOKEN": csrf_token,
