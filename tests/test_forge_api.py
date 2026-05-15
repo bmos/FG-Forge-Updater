@@ -148,7 +148,7 @@ class TestForgeCredentials:
     def test_credentials_immutable(self, credentials: ForgeCredentials) -> None:
         """Test that ForgeCredentials is frozen (immutable)."""
         with pytest.raises(AttributeError):
-            credentials.username = "new_user"  # type: ignore[misc]
+            credentials.username = "new_user"  # type: ignore[misc, ty:invalid-assignment]
 
     def test_credentials_initialization(self) -> None:
         """Test that credentials are properly initialized."""
